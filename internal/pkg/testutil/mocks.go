@@ -221,3 +221,45 @@ func (m *MockUserService) DeleteUser(id uint) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
+
+// MockNASService is a mock implementation of NASService
+type MockNASService struct {
+	mock.Mock
+}
+
+func (m *MockNASService) CreateNAS(req *nasDto.CreateNASRequest) (*nasDto.NASResponse, error) {
+	args := m.Called(req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*nasDto.NASResponse), args.Error(1)
+}
+
+func (m *MockNASService) GetNASByID(id uint) (*nasDto.NASResponse, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*nasDto.NASResponse), args.Error(1)
+}
+
+func (m *MockNASService) ListNAS(filter *nasDto.NASFilter) (*nasDto.ListNASResponse, error) {
+	args := m.Called(filter)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*nasDto.ListNASResponse), args.Error(1)
+}
+
+func (m *MockNASService) UpdateNAS(id uint, req *nasDto.UpdateNASRequest) (*nasDto.NASResponse, error) {
+	args := m.Called(id, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*nasDto.NASResponse), args.Error(1)
+}
+
+func (m *MockNASService) DeleteNAS(id uint) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
