@@ -51,6 +51,25 @@ definitions:
     - description
     - user_id
     type: object
+  dto.CreateRadcheckRequest:
+    properties:
+      attribute:
+        maxLength: 64
+        type: string
+      op:
+        maxLength: 2
+        type: string
+      username:
+        maxLength: 64
+        type: string
+      value:
+        maxLength: 253
+        type: string
+    required:
+    - attribute
+    - username
+    - value
+    type: object
   dto.CreateUserRequest:
     properties:
       email:
@@ -70,6 +89,21 @@ definitions:
       data:
         items:
           $ref: '#/definitions/dto.NASResponse'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  dto.ListRadcheckResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.RadcheckResponse'
         type: array
       page:
         type: integer
@@ -141,6 +175,19 @@ definitions:
       user_id:
         type: integer
     type: object
+  dto.RadcheckResponse:
+    properties:
+      attribute:
+        type: string
+      id:
+        type: integer
+      op:
+        type: string
+      username:
+        type: string
+      value:
+        type: string
+    type: object
   dto.UpdateNASRequest:
     properties:
       community:
@@ -186,6 +233,21 @@ definitions:
         type: string
     required:
     - status
+    type: object
+  dto.UpdateRadcheckRequest:
+    properties:
+      attribute:
+        maxLength: 64
+        type: string
+      op:
+        maxLength: 2
+        type: string
+      username:
+        maxLength: 64
+        type: string
+      value:
+        maxLength: 253
+        type: string
     type: object
   dto.UpdateUserPasswordRequest:
     properties:
@@ -449,6 +511,192 @@ paths:
       summary: Update NAS
       tags:
       - NAS
+  /api/v1/radcheck:
+    get:
+      consumes:
+      - application/json
+      description: List RADIUS check entries with pagination and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Filter by username
+        in: query
+        name: username
+        type: string
+      - description: Filter by attribute
+        in: query
+        name: attribute
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListRadcheckResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List Radcheck entries
+      tags:
+      - Radcheck
+    post:
+      consumes:
+      - application/json
+      description: Create a new RADIUS check entry for user authentication
+      parameters:
+      - description: Create Radcheck Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateRadcheckRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.RadcheckResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new Radcheck entry
+      tags:
+      - Radcheck
+  /api/v1/radcheck/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a RADIUS check entry
+      parameters:
+      - description: Radcheck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete Radcheck entry
+      tags:
+      - Radcheck
+    get:
+      consumes:
+      - application/json
+      description: Get a RADIUS check entry by ID
+      parameters:
+      - description: Radcheck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RadcheckResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get Radcheck by ID
+      tags:
+      - Radcheck
+    put:
+      consumes:
+      - application/json
+      description: Update a RADIUS check entry
+      parameters:
+      - description: Radcheck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Radcheck Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRadcheckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.RadcheckResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update Radcheck entry
+      tags:
+      - Radcheck
   /health:
     get:
       consumes:
