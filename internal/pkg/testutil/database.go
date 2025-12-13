@@ -1,7 +1,8 @@
 package testutil
 
 import (
-	"github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
+	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
+	paymentEntity "github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
 	userEntity "github.com/novriyantoAli/freeradius-service/internal/application/user/entity"
 
 	"gorm.io/driver/sqlite"
@@ -21,7 +22,8 @@ func SetupTestDB() (*gorm.DB, error) {
 	// Auto-migrate all entities
 	err = db.AutoMigrate(
 		&userEntity.User{},
-		&entity.Payment{},
+		&paymentEntity.Payment{},
+		&nasEntity.NAS{},
 	)
 	if err != nil {
 		return nil, err
@@ -37,6 +39,9 @@ func CleanDB(db *gorm.DB) error {
 		return err
 	}
 	if err := db.Exec("DELETE FROM users").Error; err != nil {
+		return err
+	}
+	if err := db.Exec("DELETE FROM nas").Error; err != nil {
 		return err
 	}
 	return nil

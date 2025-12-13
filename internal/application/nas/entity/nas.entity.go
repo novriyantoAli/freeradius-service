@@ -8,7 +8,7 @@ import (
 
 type NAS struct {
 	ID               uint      `json:"id" gorm:"primaryKey"`
-	NASName          string    `json:"nasname" gorm:"index;not null;size:128"`
+	NASName          string    `json:"nasname" gorm:"index;uniqueIndex;not null;size:128"`
 	ShortName        string    `json:"shortname" gorm:"size:32"`
 	Type             string    `json:"type" gorm:"size:30;default:'other'"`
 	Ports            int       `json:"ports"`

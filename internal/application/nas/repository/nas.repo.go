@@ -46,7 +46,7 @@ func (r *nasRepository) GetByID(id uint) (*entity.NAS, error) {
 
 func (r *nasRepository) GetByNASName(nasname string) (*entity.NAS, error) {
 	var nas entity.NAS
-	err := r.db.Where("nasname = ?", nasname).First(&nas).Error
+	err := r.db.Where("nas_name = ?", nasname).First(&nas).Error
 	if err != nil {
 		r.logger.Error("Failed to get NAS by name", zap.String("nasname", nasname), zap.Error(err))
 		return nil, err
@@ -61,10 +61,10 @@ func (r *nasRepository) GetAll(filter *dto.NASFilter) ([]entity.NAS, int64, erro
 	query := r.db.Model(&entity.NAS{})
 
 	if filter.NASName != "" {
-		query = query.Where("nasname LIKE ?", "%"+filter.NASName+"%")
+		query = query.Where("nas_name LIKE ?", "%"+filter.NASName+"%")
 	}
 	if filter.ShortName != "" {
-		query = query.Where("shortname LIKE ?", "%"+filter.ShortName+"%")
+		query = query.Where("short_name LIKE ?", "%"+filter.ShortName+"%")
 	}
 	if filter.Type != "" {
 		query = query.Where("type = ?", filter.Type)
