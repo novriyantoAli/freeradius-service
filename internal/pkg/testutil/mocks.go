@@ -1,8 +1,10 @@
 package testutil
 
 import (
-	"github.com/novriyantoAli/freeradius-service/internal/application/payment/dto"
-	"github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
+	nasDto "github.com/novriyantoAli/freeradius-service/internal/application/nas/dto"
+	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
+	paymentDto "github.com/novriyantoAli/freeradius-service/internal/application/payment/dto"
+	paymentEntity "github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
 	userDto "github.com/novriyantoAli/freeradius-service/internal/application/user/dto"
 	userEntity "github.com/novriyantoAli/freeradius-service/internal/application/user/entity"
 
@@ -69,24 +71,24 @@ type MockPaymentRepository struct {
 	mock.Mock
 }
 
-func (m *MockPaymentRepository) Create(payment *entity.Payment) error {
+func (m *MockPaymentRepository) Create(payment *paymentEntity.Payment) error {
 	args := m.Called(payment)
 	return args.Error(0)
 }
 
-func (m *MockPaymentRepository) GetByID(id uint) (*entity.Payment, error) {
+func (m *MockPaymentRepository) GetByID(id uint) (*paymentEntity.Payment, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*entity.Payment), args.Error(1)
+	return args.Get(0).(*paymentEntity.Payment), args.Error(1)
 }
 
-func (m *MockPaymentRepository) GetAll(filter *dto.PaymentFilter) ([]entity.Payment, int64, error) {
+func (m *MockPaymentRepository) GetAll(filter *paymentDto.PaymentFilter) ([]paymentEntity.Payment, int64, error) {
 	args := m.Called(filter)
-	var payments []entity.Payment
+	var payments []paymentEntity.Payment
 	if args.Get(0) != nil {
-		payments = args.Get(0).([]entity.Payment)
+		payments = args.Get(0).([]paymentEntity.Payment)
 	}
 
 	var count int64
@@ -96,7 +98,7 @@ func (m *MockPaymentRepository) GetAll(filter *dto.PaymentFilter) ([]entity.Paym
 	return payments, count, args.Error(2)
 }
 
-func (m *MockPaymentRepository) Update(payment *entity.Payment) error {
+func (m *MockPaymentRepository) Update(payment *paymentEntity.Payment) error {
 	args := m.Called(payment)
 	return args.Error(0)
 }
@@ -106,13 +108,63 @@ func (m *MockPaymentRepository) Delete(id uint) error {
 	return args.Error(0)
 }
 
-func (m *MockPaymentRepository) GetByUserID(userID uint) ([]entity.Payment, error) {
+func (m *MockPaymentRepository) GetByUserID(userID uint) ([]paymentEntity.Payment, error) {
 	args := m.Called(userID)
-	var payments []entity.Payment
+	var payments []paymentEntity.Payment
 	if args.Get(0) != nil {
-		payments = args.Get(0).([]entity.Payment)
+		payments = args.Get(0).([]paymentEntity.Payment)
 	}
 	return payments, args.Error(1)
+}
+
+// MockNASRepository is a mock implementation of NASRepository
+type MockNASRepository struct {
+	mock.Mock
+}
+
+func (m *MockNASRepository) Create(nas *nasEntity.NAS) error {
+	args := m.Called(nas)
+	return args.Error(0)
+}
+
+func (m *MockNASRepository) GetByID(id uint) (*nasEntity.NAS, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*nasEntity.NAS), args.Error(1)
+}
+
+func (m *MockNASRepository) GetByNASName(nasname string) (*nasEntity.NAS, error) {
+	args := m.Called(nasname)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*nasEntity.NAS), args.Error(1)
+}
+
+func (m *MockNASRepository) GetAll(filter *nasDto.NASFilter) ([]nasEntity.NAS, int64, error) {
+	args := m.Called(filter)
+	var nasList []nasEntity.NAS
+	if args.Get(0) != nil {
+		nasList = args.Get(0).([]nasEntity.NAS)
+	}
+
+	var count int64
+	if args.Get(1) != nil {
+		count = args.Get(1).(int64)
+	}
+	return nasList, count, args.Error(2)
+}
+
+func (m *MockNASRepository) Update(nas *nasEntity.NAS) error {
+	args := m.Called(nas)
+	return args.Error(0)
+}
+
+func (m *MockNASRepository) Delete(id uint) error {
+	args := m.Called(id)
+	return args.Error(0)
 }
 
 // MockUserService is a mock implementation of UserService
