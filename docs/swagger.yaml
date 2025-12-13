@@ -1,5 +1,40 @@
 basePath: /api/v1
 definitions:
+  dto.CreateNASRequest:
+    properties:
+      community:
+        maxLength: 50
+        type: string
+      description:
+        maxLength: 200
+        type: string
+      limit_proxy_state:
+        maxLength: 4
+        type: string
+      nasname:
+        maxLength: 128
+        type: string
+      ports:
+        type: integer
+      require_ma:
+        maxLength: 4
+        type: string
+      secret:
+        maxLength: 60
+        type: string
+      server:
+        maxLength: 64
+        type: string
+      shortname:
+        maxLength: 32
+        type: string
+      type:
+        maxLength: 30
+        type: string
+    required:
+    - nasname
+    - secret
+    type: object
   dto.CreatePaymentRequest:
     properties:
       amount:
@@ -29,6 +64,50 @@ definitions:
     - email
     - name
     - password
+    type: object
+  dto.ListNASResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.NASResponse'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  dto.NASResponse:
+    properties:
+      community:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      limit_proxy_state:
+        type: string
+      nasname:
+        type: string
+      ports:
+        type: integer
+      require_ma:
+        type: string
+      secret:
+        type: string
+      server:
+        type: string
+      shortname:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
     type: object
   dto.PaymentListResponse:
     properties:
@@ -61,6 +140,38 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  dto.UpdateNASRequest:
+    properties:
+      community:
+        maxLength: 50
+        type: string
+      description:
+        maxLength: 200
+        type: string
+      limit_proxy_state:
+        maxLength: 4
+        type: string
+      nasname:
+        maxLength: 128
+        type: string
+      ports:
+        type: integer
+      require_ma:
+        maxLength: 4
+        type: string
+      secret:
+        maxLength: 60
+        type: string
+      server:
+        maxLength: 64
+        type: string
+      shortname:
+        maxLength: 32
+        type: string
+      type:
+        maxLength: 30
+        type: string
     type: object
   dto.UpdatePaymentRequest:
     properties:
@@ -133,8 +244,10 @@ info:
     name: API Support
     url: http://www.swagger.io/support
   description: |-
-    A production-ready Go boilerplate following Domain-Driven Design (DDD) principles with NestJS-like architecture patterns.
-    Built with modern Go practices, microservice architecture, and comprehensive background job processing.
+    A production-ready Go boilerplate following Domain-Driven Design (DDD)
+    principles with NestJS-like architecture patterns.
+    Built with modern Go practices, microservice architecture, and
+    comprehensive background job processing.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -142,6 +255,200 @@ info:
   title: Vibe DDD Golang API
   version: "1.0"
 paths:
+  /api/v1/nas:
+    get:
+      consumes:
+      - application/json
+      description: List Network Access Servers with pagination and filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Filter by NAS name
+        in: query
+        name: nasname
+        type: string
+      - description: Filter by short name
+        in: query
+        name: shortname
+        type: string
+      - description: Filter by type
+        in: query
+        name: type
+        type: string
+      - description: Filter by description
+        in: query
+        name: description
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListNASResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List NAS
+      tags:
+      - NAS
+    post:
+      consumes:
+      - application/json
+      description: Create a new Network Access Server
+      parameters:
+      - description: Create NAS Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateNASRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.NASResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new NAS
+      tags:
+      - NAS
+  /api/v1/nas/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Network Access Server
+      parameters:
+      - description: NAS ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete NAS
+      tags:
+      - NAS
+    get:
+      consumes:
+      - application/json
+      description: Get a Network Access Server by ID
+      parameters:
+      - description: NAS ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NASResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get NAS by ID
+      tags:
+      - NAS
+    put:
+      consumes:
+      - application/json
+      description: Update a Network Access Server
+      parameters:
+      - description: NAS ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update NAS Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateNASRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NASResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update NAS
+      tags:
+      - NAS
   /health:
     get:
       consumes:

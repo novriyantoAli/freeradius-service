@@ -24,6 +24,298 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/nas": {
+            "get": {
+                "description": "List Network Access Servers with pagination and filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NAS"
+                ],
+                "summary": "List NAS",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by NAS name",
+                        "name": "nasname",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by short name",
+                        "name": "shortname",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by type",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by description",
+                        "name": "description",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ListNASResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new Network Access Server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NAS"
+                ],
+                "summary": "Create a new NAS",
+                "parameters": [
+                    {
+                        "description": "Create NAS Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateNASRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NASResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/nas/{id}": {
+            "get": {
+                "description": "Get a Network Access Server by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NAS"
+                ],
+                "summary": "Get NAS by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "NAS ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NASResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a Network Access Server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NAS"
+                ],
+                "summary": "Update NAS",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "NAS ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update NAS Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateNASRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NASResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a Network Access Server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NAS"
+                ],
+                "summary": "Delete NAS",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "NAS ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "get the status of server.",
@@ -747,6 +1039,54 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.CreateNASRequest": {
+            "type": "object",
+            "required": [
+                "nasname",
+                "secret"
+            ],
+            "properties": {
+                "community": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "limit_proxy_state": {
+                    "type": "string",
+                    "maxLength": 4
+                },
+                "nasname": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "ports": {
+                    "type": "integer"
+                },
+                "require_ma": {
+                    "type": "string",
+                    "maxLength": 4
+                },
+                "secret": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "server": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "shortname": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "type": {
+                    "type": "string",
+                    "maxLength": 30
+                }
+            }
+        },
         "dto.CreatePaymentRequest": {
             "type": "object",
             "required": [
@@ -787,6 +1127,73 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 8
+                }
+            }
+        },
+        "dto.ListNASResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NASResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NASResponse": {
+            "type": "object",
+            "properties": {
+                "community": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "limit_proxy_state": {
+                    "type": "string"
+                },
+                "nasname": {
+                    "type": "string"
+                },
+                "ports": {
+                    "type": "integer"
+                },
+                "require_ma": {
+                    "type": "string"
+                },
+                "secret": {
+                    "type": "string"
+                },
+                "server": {
+                    "type": "string"
+                },
+                "shortname": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -836,6 +1243,50 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateNASRequest": {
+            "type": "object",
+            "properties": {
+                "community": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 200
+                },
+                "limit_proxy_state": {
+                    "type": "string",
+                    "maxLength": 4
+                },
+                "nasname": {
+                    "type": "string",
+                    "maxLength": 128
+                },
+                "ports": {
+                    "type": "integer"
+                },
+                "require_ma": {
+                    "type": "string",
+                    "maxLength": 4
+                },
+                "secret": {
+                    "type": "string",
+                    "maxLength": 60
+                },
+                "server": {
+                    "type": "string",
+                    "maxLength": 64
+                },
+                "shortname": {
+                    "type": "string",
+                    "maxLength": 32
+                },
+                "type": {
+                    "type": "string",
+                    "maxLength": 30
                 }
             }
         },
@@ -949,7 +1400,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Vibe DDD Golang API",
-	Description:      "A production-ready Go boilerplate following Domain-Driven Design (DDD) principles with NestJS-like architecture patterns.\nBuilt with modern Go practices, microservice architecture, and comprehensive background job processing.",
+	Description:      "A production-ready Go boilerplate following Domain-Driven Design (DDD)\nprinciples with NestJS-like architecture patterns.\nBuilt with modern Go practices, microservice architecture, and\ncomprehensive background job processing.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

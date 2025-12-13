@@ -80,11 +80,11 @@ func (h *NASGrpcHandler) ListNAS(ctx context.Context, req *nas.ListNASRequest) (
 	}
 
 	filter := &dto.NASFilter{
-		NASName:     req.Filter.Nasname,
-		ShortName:   req.Filter.Shortname,
-		Type:        req.Filter.Type,
-		Page:        page,
-		PageSize:    pageSize,
+		NASName:   req.Filter.Nasname,
+		ShortName: req.Filter.Shortname,
+		Type:      req.Filter.Type,
+		Page:      page,
+		PageSize:  pageSize,
 	}
 
 	listResponse, err := h.nasService.ListNAS(filter)
