@@ -11,184 +11,190 @@ import (
 )
 
 type RadcheckHandler struct {
-	radcheckService service.RadcheckService
-	logger          *zap.Logger
+	service service.RadcheckService
+	logger  *zap.Logger
 }
 
-func NewRadcheckHandler(radcheckService service.RadcheckService, logger *zap.Logger) *RadcheckHandler {
+func NewRadcheckHandler(service service.RadcheckService, logger *zap.Logger) *RadcheckHandler {
 	return &RadcheckHandler{
-		radcheckService: radcheckService,
-		logger:          logger,
-	}
-}
-
-func (h *RadcheckHandler) RegisterRoutes(r *gin.Engine) {
-	radcheckGroup := r.Group("/api/v1/radcheck")
-	{
-		radcheckGroup.POST("", h.CreateRadcheck)
-		radcheckGroup.GET("", h.ListRadcheck)
-		radcheckGroup.GET("/:id", h.GetRadcheck)
-		radcheckGroup.PUT("/:id", h.UpdateRadcheck)
-		radcheckGroup.DELETE("/:id", h.DeleteRadcheck)
+		service: service,
+		logger:  logger,
 	}
 }
 
 // CreateRadcheck godoc
-// @Summary Create a new Radcheck entry
+// @Summary Create a new radcheck entry
 // @Description Create a new RADIUS check entry for user authentication
-// @Tags Radcheck
+// @Tags radcheck
 // @Accept json
 // @Produce json
-// @Param request body dto.CreateRadcheckRequest true "Create Radcheck Request"
-// @Success 201 {object} dto.RadcheckResponse
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Param request body dto.CreateRadcheckRequest true "Radcheck creation request"
+// @Success 201 {object} map[string]interface{} "Created radcheck"
+// @Failure 400 {object} map[string]interface{} "Invalid request body"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /api/v1/radcheck [post]
-func (h *RadcheckHandler) CreateRadcheck(c *gin.Context) {
+func (h *RadcheckHandler) CreateRadcheck(ctx *gin.Context) {
 	var req dto.CreateRadcheckRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		h.logger.Error("Invalid request", zap.Error(err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("Invalid request body", zap.Error(err))
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	resp, err := h.radcheckService.CreateRadcheck(&req)
+	radcheck, err := h.service.CreateRadcheck(&req)
 	if err != nil {
 		h.logger.Error("Failed to create radcheck", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create radcheck"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, resp)
+	ctx.JSON(http.StatusCreated, gin.H{"data": radcheck})
 }
 
 // GetRadcheck godoc
-// @Summary Get Radcheck by ID
-// @Description Get a RADIUS check entry by ID
-// @Tags Radcheck
+// @Summary Get a radcheck by ID
+// @Description Get a single radcheck by its ID
+// @Tags radcheck
 // @Accept json
 // @Produce json
 // @Param id path int true "Radcheck ID"
-// @Success 200 {object} dto.RadcheckResponse
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} map[string]interface{} "Radcheck details"
+// @Failure 400 {object} map[string]interface{} "Invalid radcheck ID"
+// @Failure 404 {object} map[string]interface{} "Radcheck not found"
 // @Router /api/v1/radcheck/{id} [get]
-func (h *RadcheckHandler) GetRadcheck(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+func (h *RadcheckHandler) GetRadcheck(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		h.logger.Error("Invalid ID", zap.Error(err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid radcheck ID"})
 		return
 	}
 
-	resp, err := h.radcheckService.GetRadcheckByID(uint(id))
+	radcheck, err := h.service.GetRadcheckByID(uint(id))
 	if err != nil {
 		h.logger.Error("Failed to get radcheck", zap.Error(err))
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Radcheck not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, gin.H{"data": radcheck})
 }
 
 // ListRadcheck godoc
-// @Summary List Radcheck entries
-// @Description List RADIUS check entries with pagination and filtering
-// @Tags Radcheck
+// @Summary List all radchecks
+// @Description Get a list of radchecks with optional filtering and pagination
+// @Tags radcheck
 // @Accept json
 // @Produce json
-// @Param page query int false "Page number" default(1)
-// @Param page_size query int false "Page size" default(10)
 // @Param username query string false "Filter by username"
 // @Param attribute query string false "Filter by attribute"
-// @Success 200 {object} dto.ListRadcheckResponse
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Number of items per page" default(10)
+// @Success 200 {object} dto.ListRadcheckResponse "List of radchecks"
+// @Failure 400 {object} map[string]interface{} "Invalid query parameters"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /api/v1/radcheck [get]
-func (h *RadcheckHandler) ListRadcheck(c *gin.Context) {
+func (h *RadcheckHandler) ListRadcheck(ctx *gin.Context) {
 	var filter dto.RadcheckFilter
-	filter.Page = 1
-	filter.PageSize = 10
-
-	if err := c.ShouldBindQuery(&filter); err != nil {
+	if err := ctx.ShouldBindQuery(&filter); err != nil {
 		h.logger.Error("Invalid query parameters", zap.Error(err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	resp, err := h.radcheckService.ListRadcheck(&filter)
+	radchecks, err := h.service.ListRadcheck(&filter)
 	if err != nil {
 		h.logger.Error("Failed to list radcheck", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list radcheck"})
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, radchecks)
 }
 
 // UpdateRadcheck godoc
-// @Summary Update Radcheck entry
-// @Description Update a RADIUS check entry
-// @Tags Radcheck
+// @Summary Update a radcheck entry
+// @Description Update a radcheck entry by ID
+// @Tags radcheck
 // @Accept json
 // @Produce json
 // @Param id path int true "Radcheck ID"
-// @Param request body dto.UpdateRadcheckRequest true "Update Radcheck Request"
-// @Success 200 {object} dto.RadcheckResponse
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Param request body dto.UpdateRadcheckRequest true "Radcheck update request"
+// @Success 200 {object} map[string]interface{} "Updated radcheck"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 404 {object} map[string]interface{} "Radcheck not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /api/v1/radcheck/{id} [put]
-func (h *RadcheckHandler) UpdateRadcheck(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+func (h *RadcheckHandler) UpdateRadcheck(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		h.logger.Error("Invalid ID", zap.Error(err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid radcheck ID"})
 		return
 	}
 
 	var req dto.UpdateRadcheckRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		h.logger.Error("Invalid request", zap.Error(err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("Invalid request body", zap.Error(err))
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	resp, err := h.radcheckService.UpdateRadcheck(uint(id), &req)
+	radcheck, err := h.service.UpdateRadcheck(uint(id), &req)
 	if err != nil {
 		h.logger.Error("Failed to update radcheck", zap.Error(err))
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		if err.Error() == "radcheck not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update radcheck"})
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	ctx.JSON(http.StatusOK, gin.H{"data": radcheck})
 }
 
 // DeleteRadcheck godoc
-// @Summary Delete Radcheck entry
-// @Description Delete a RADIUS check entry
-// @Tags Radcheck
+// @Summary Delete a radcheck entry
+// @Description Delete a radcheck entry by ID
+// @Tags radcheck
 // @Accept json
 // @Produce json
 // @Param id path int true "Radcheck ID"
-// @Success 204
-// @Failure 404 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} map[string]interface{} "Radcheck deleted successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid radcheck ID"
+// @Failure 404 {object} map[string]interface{} "Radcheck not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /api/v1/radcheck/{id} [delete]
-func (h *RadcheckHandler) DeleteRadcheck(c *gin.Context) {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+func (h *RadcheckHandler) DeleteRadcheck(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		h.logger.Error("Invalid ID", zap.Error(err))
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid radcheck ID"})
 		return
 	}
 
-	err = h.radcheckService.DeleteRadcheck(uint(id))
+	err = h.service.DeleteRadcheck(uint(id))
 	if err != nil {
 		h.logger.Error("Failed to delete radcheck", zap.Error(err))
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		if err.Error() == "radcheck not found" {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete radcheck"})
 		return
 	}
 
-	c.Status(http.StatusNoContent)
+	ctx.JSON(http.StatusOK, gin.H{"message": "Radcheck deleted successfully"})
+}
+
+func (h *RadcheckHandler) RegisterRoutes(api *gin.RouterGroup) {
+	radcheck := api.Group("/radcheck")
+	{
+		radcheck.POST("", h.CreateRadcheck)
+		radcheck.GET("", h.ListRadcheck)
+		radcheck.GET("/:id", h.GetRadcheck)
+		radcheck.PUT("/:id", h.UpdateRadcheck)
+		radcheck.DELETE("/:id", h.DeleteRadcheck)
+	}
 }
