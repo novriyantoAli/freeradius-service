@@ -2,9 +2,9 @@ package service
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
+	"github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radcheck/repository"
 
 	"go.uber.org/zap"
@@ -14,6 +14,7 @@ import (
 type RadcheckService interface {
 	CreateRadcheck(req *dto.CreateRadcheckRequest) (*dto.RadcheckResponse, error)
 	GetRadcheckByID(id uint) (*dto.RadcheckResponse, error)
+	GetRadcheckByUsernameAndAttribute(username, attribute string) (*dto.RadcheckResponse, error)
 	ListRadcheck(filter *dto.RadcheckFilter) (*dto.ListRadcheckResponse, error)
 	UpdateRadcheck(id uint, req *dto.UpdateRadcheckRequest) (*dto.RadcheckResponse, error)
 	DeleteRadcheck(id uint) error
@@ -32,59 +33,44 @@ func NewRadcheckService(repo repository.RadcheckRepository, logger *zap.Logger) 
 }
 
 func (s *radcheckService) CreateRadcheck(req *dto.CreateRadcheckRequest) (*dto.RadcheckResponse, error) {
-	if req.Username == "" {
-		err := fmt.Errorf("username is required")
-		s.logger.Error("Invalid request", zap.Error(err))
-		return nil, err
+	radcheck := &entity.Radcheck{
+		Username:  req.Username,
+		Attribute: req.Attribute,
+		Op:        req.Op,
+		Value:     req.Value,
 	}
 
-	if req.Attribute == "" {
-		err := fmt.Errorf("attribute is required")
-		s.logger.Error("Invalid request", zap.Error(err))
-		return nil, err
-	}
-
-	if req.Value == "" {
-		err := fmt.Errorf("value is required")
-		s.logger.Error("Invalid request", zap.Error(err))
-		return nil, err
-	}
-
-	radcheck, err := s.repo.Create(req)
+	err := s.repo.Create(radcheck)
 	if err != nil {
+		s.logger.Error("Failed to create radcheck", zap.Error(err))
 		return nil, err
 	}
 
-	return &dto.RadcheckResponse{
-		ID:        radcheck.ID,
-		Username:  radcheck.Username,
-		Attribute: radcheck.Attribute,
-		Op:        radcheck.Op,
-		Value:     radcheck.Value,
-		CreatedAt: radcheck.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt: radcheck.UpdatedAt.Format("2006-01-02 15:04:05"),
-	}, nil
+	return s.entityToResponse(radcheck), nil
 }
 
 func (s *radcheckService) GetRadcheckByID(id uint) (*dto.RadcheckResponse, error) {
 	radcheck, err := s.repo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.logger.Warn("Radcheck not found", zap.Uint("id", id))
-			return nil, fmt.Errorf("radcheck not found")
+			return nil, errors.New("radcheck not found")
 		}
 		return nil, err
 	}
 
-	return &dto.RadcheckResponse{
-		ID:        radcheck.ID,
-		Username:  radcheck.Username,
-		Attribute: radcheck.Attribute,
-		Op:        radcheck.Op,
-		Value:     radcheck.Value,
-		CreatedAt: radcheck.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt: radcheck.UpdatedAt.Format("2006-01-02 15:04:05"),
-	}, nil
+	return s.entityToResponse(radcheck), nil
+}
+
+func (s *radcheckService) GetRadcheckByUsernameAndAttribute(username, attribute string) (*dto.RadcheckResponse, error) {
+	radcheck, err := s.repo.GetByUsernameAndAttribute(username, attribute)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("radcheck not found")
+		}
+		return nil, err
+	}
+
+	return s.entityToResponse(radcheck), nil
 }
 
 func (s *radcheckService) ListRadcheck(filter *dto.RadcheckFilter) (*dto.ListRadcheckResponse, error) {
@@ -98,44 +84,77 @@ func (s *radcheckService) ListRadcheck(filter *dto.RadcheckFilter) (*dto.ListRad
 		filter.PageSize = 100
 	}
 
-	return s.repo.GetAll(filter)
+	radchecks, total, err := s.repo.GetAll(filter)
+	if err != nil {
+		s.logger.Error("Failed to list radchecks", zap.Error(err))
+		return nil, err
+	}
+
+	responses := make([]dto.RadcheckResponse, len(radchecks))
+	for i, rc := range radchecks {
+		responses[i] = *s.entityToResponse(&rc)
+	}
+
+	totalPage := int((total + int64(filter.PageSize) - 1) / int64(filter.PageSize))
+
+	return &dto.ListRadcheckResponse{
+		Data:      responses,
+		Total:     total,
+		Page:      filter.Page,
+		PageSize:  filter.PageSize,
+		TotalPage: totalPage,
+	}, nil
 }
 
 func (s *radcheckService) UpdateRadcheck(id uint, req *dto.UpdateRadcheckRequest) (*dto.RadcheckResponse, error) {
-	_, err := s.repo.GetByID(id)
+	radcheck, err := s.repo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.logger.Warn("Radcheck not found", zap.Uint("id", id))
-			return nil, fmt.Errorf("radcheck not found")
+			return nil, errors.New("radcheck not found")
 		}
 		return nil, err
 	}
 
-	radcheck, err := s.repo.Update(id, req)
+	if req.Username != "" {
+		radcheck.Username = req.Username
+	}
+	if req.Attribute != "" {
+		radcheck.Attribute = req.Attribute
+	}
+	if req.Op != "" {
+		radcheck.Op = req.Op
+	}
+	if req.Value != "" {
+		radcheck.Value = req.Value
+	}
+
+	err = s.repo.Update(radcheck)
 	if err != nil {
+		s.logger.Error("Failed to update radcheck", zap.Uint("id", id), zap.Error(err))
 		return nil, err
 	}
 
-	return &dto.RadcheckResponse{
-		ID:        radcheck.ID,
-		Username:  radcheck.Username,
-		Attribute: radcheck.Attribute,
-		Op:        radcheck.Op,
-		Value:     radcheck.Value,
-		CreatedAt: radcheck.CreatedAt.Format("2006-01-02 15:04:05"),
-		UpdatedAt: radcheck.UpdatedAt.Format("2006-01-02 15:04:05"),
-	}, nil
+	return s.entityToResponse(radcheck), nil
 }
 
 func (s *radcheckService) DeleteRadcheck(id uint) error {
 	_, err := s.repo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			s.logger.Warn("Radcheck not found", zap.Uint("id", id))
-			return fmt.Errorf("radcheck not found")
+			return errors.New("radcheck not found")
 		}
 		return err
 	}
 
 	return s.repo.Delete(id)
+}
+
+func (s *radcheckService) entityToResponse(radcheck *entity.Radcheck) *dto.RadcheckResponse {
+	return &dto.RadcheckResponse{
+		ID:        radcheck.ID,
+		Username:  radcheck.Username,
+		Attribute: radcheck.Attribute,
+		Op:        radcheck.Op,
+		Value:     radcheck.Value,
+	}
 }
