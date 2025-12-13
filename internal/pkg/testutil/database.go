@@ -3,6 +3,7 @@ package testutil
 import (
 	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
 	paymentEntity "github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
+	radcheckEntity "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	userEntity "github.com/novriyantoAli/freeradius-service/internal/application/user/entity"
 
 	"gorm.io/driver/sqlite"
@@ -24,6 +25,7 @@ func SetupTestDB() (*gorm.DB, error) {
 		&userEntity.User{},
 		&paymentEntity.Payment{},
 		&nasEntity.NAS{},
+		&radcheckEntity.Radcheck{},
 	)
 	if err != nil {
 		return nil, err
@@ -42,6 +44,9 @@ func CleanDB(db *gorm.DB) error {
 		return err
 	}
 	if err := db.Exec("DELETE FROM nas").Error; err != nil {
+		return err
+	}
+	if err := db.Exec("DELETE FROM radcheck").Error; err != nil {
 		return err
 	}
 	return nil
