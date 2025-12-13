@@ -1,10 +1,10 @@
 package testutil
 
 import (
-	"time"
-
 	nasDto "github.com/novriyantoAli/freeradius-service/internal/application/nas/dto"
 	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
+	radcheckDto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
+	radcheckEntity "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	paymentDto "github.com/novriyantoAli/freeradius-service/internal/application/payment/dto"
 	paymentEntity "github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
 	userDto "github.com/novriyantoAli/freeradius-service/internal/application/user/dto"
@@ -14,12 +14,10 @@ import (
 // User fixtures
 func CreateUserFixture() *userEntity.User {
 	return &userEntity.User{
-		ID:        1,
-		Name:      "John Doe",
-		Email:     "john@example.com",
-		Password:  "$2a$10$example.hashed.password",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:       1,
+		Name:     "John Doe",
+		Email:    "john@example.com",
+		Password: "$2a$10$example.hashed.password",
 	}
 }
 
@@ -47,8 +45,6 @@ func CreatePaymentFixture() *paymentEntity.Payment {
 		Status:      paymentEntity.PaymentStatusPending,
 		Description: "Test payment",
 		UserID:      1,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
 	}
 }
 
@@ -93,8 +89,6 @@ func CreateNASFixture() *nasEntity.NAS {
 		Description:     "Test NAS",
 		RequireMa:       "auto",
 		LimitProxyState: "auto",
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
 	}
 }
 
@@ -131,5 +125,43 @@ func CreateNASFilterFixture() *nasDto.NASFilter {
 		Description: "",
 		Page:        1,
 		PageSize:    10,
+	}
+}
+
+// Radcheck fixtures
+func CreateRadcheckFixture() *radcheckEntity.Radcheck {
+	return &radcheckEntity.Radcheck{
+		ID:        1,
+		Username:  "testuser",
+		Attribute: "User-Password",
+		Op:        ":=",
+		Value:     "testing123",
+	}
+}
+
+func CreateRadcheckRequestFixture() *radcheckDto.CreateRadcheckRequest {
+	return &radcheckDto.CreateRadcheckRequest{
+		Username:  "testuser",
+		Attribute: "User-Password",
+		Op:        ":=",
+		Value:     "testing123",
+	}
+}
+
+func CreateUpdateRadcheckRequestFixture() *radcheckDto.UpdateRadcheckRequest {
+	return &radcheckDto.UpdateRadcheckRequest{
+		Username:  "testuser",
+		Attribute: "User-Password",
+		Op:        ":=",
+		Value:     "newpassword123",
+	}
+}
+
+func CreateRadcheckFilterFixture() *radcheckDto.RadcheckFilter {
+	return &radcheckDto.RadcheckFilter{
+		Username:  "",
+		Attribute: "",
+		Page:      1,
+		PageSize:  10,
 	}
 }
