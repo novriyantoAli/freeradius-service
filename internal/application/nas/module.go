@@ -4,20 +4,23 @@ import (
 	"github.com/novriyantoAli/freeradius-service/internal/application/nas/handler"
 	"github.com/novriyantoAli/freeradius-service/internal/application/nas/repository"
 	"github.com/novriyantoAli/freeradius-service/internal/application/nas/service"
+
 	"go.uber.org/fx"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
-var NASModule = fx.Module(
-	"nas",
+// Module provides all NAS domain dependencies
+var Module = fx.Options(
 	fx.Provide(
-		NewNASRepository,
+		repository.NewNASRepository,
 		service.NewNASService,
 		handler.NewNASHandler,
 	),
 )
 
-func NewNASRepository(db *gorm.DB, logger *zap.Logger) repository.NASRepository {
-	return repository.NewNASRepository(db, logger)
-}
+// WorkerModule provides only worker dependencies for worker api
+var WorkerModule = fx.Options(
+	fx.Provide(
+		repository.NewNASRepository,
+		service.NewNASService,
+	),
+)

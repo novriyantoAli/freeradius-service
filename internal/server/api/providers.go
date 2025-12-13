@@ -12,7 +12,7 @@ var Module = fx.Options(
 	// Include all domain modules
 	user.Module,
 	payment.Module,
-	nas.NASModule,
+	nas.Module,
 
 	// API api
 	fx.Provide(NewServer),
