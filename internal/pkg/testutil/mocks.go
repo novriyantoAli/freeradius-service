@@ -5,6 +5,8 @@ import (
 	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
 	paymentDto "github.com/novriyantoAli/freeradius-service/internal/application/payment/dto"
 	paymentEntity "github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
+	radcheckDto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
+	radcheckEntity "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	userDto "github.com/novriyantoAli/freeradius-service/internal/application/user/dto"
 	userEntity "github.com/novriyantoAli/freeradius-service/internal/application/user/entity"
 
@@ -260,6 +262,106 @@ func (m *MockNASService) UpdateNAS(id uint, req *nasDto.UpdateNASRequest) (*nasD
 }
 
 func (m *MockNASService) DeleteNAS(id uint) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+// MockRadcheckRepository is a mock implementation of RadcheckRepository
+type MockRadcheckRepository struct {
+	mock.Mock
+}
+
+func (m *MockRadcheckRepository) Create(radcheck *radcheckEntity.Radcheck) error {
+	args := m.Called(radcheck)
+	return args.Error(0)
+}
+
+func (m *MockRadcheckRepository) GetByID(id uint) (*radcheckEntity.Radcheck, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*radcheckEntity.Radcheck), args.Error(1)
+}
+
+func (m *MockRadcheckRepository) GetByUsernameAndAttribute(username, attribute string) (*radcheckEntity.Radcheck, error) {
+	args := m.Called(username, attribute)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*radcheckEntity.Radcheck), args.Error(1)
+}
+
+func (m *MockRadcheckRepository) GetAll(filter *radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+	args := m.Called(filter)
+	var radchecks []radcheckEntity.Radcheck
+	if args.Get(0) != nil {
+		radchecks = args.Get(0).([]radcheckEntity.Radcheck)
+	}
+
+	var count int64
+	if args.Get(1) != nil {
+		count = args.Get(1).(int64)
+	}
+	return radchecks, count, args.Error(2)
+}
+
+func (m *MockRadcheckRepository) Update(radcheck *radcheckEntity.Radcheck) error {
+	args := m.Called(radcheck)
+	return args.Error(0)
+}
+
+func (m *MockRadcheckRepository) Delete(id uint) error {
+	args := m.Called(id)
+	return args.Error(0)
+}
+
+// MockRadcheckService is a mock implementation of RadcheckService
+type MockRadcheckService struct {
+	mock.Mock
+}
+
+func (m *MockRadcheckService) CreateRadcheck(req *radcheckDto.CreateRadcheckRequest) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
+}
+
+func (m *MockRadcheckService) GetRadcheckByID(id uint) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
+}
+
+func (m *MockRadcheckService) GetRadcheckByUsernameAndAttribute(username, attribute string) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(username, attribute)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
+}
+
+func (m *MockRadcheckService) ListRadcheck(filter *radcheckDto.RadcheckFilter) (*radcheckDto.ListRadcheckResponse, error) {
+	args := m.Called(filter)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*radcheckDto.ListRadcheckResponse), args.Error(1)
+}
+
+func (m *MockRadcheckService) UpdateRadcheck(id uint, req *radcheckDto.UpdateRadcheckRequest) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(id, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
+}
+
+func (m *MockRadcheckService) DeleteRadcheck(id uint) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
