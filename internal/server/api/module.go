@@ -6,6 +6,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 
+	nasHandler "github.com/novriyantoAli/freeradius-service/internal/application/nas/handler"
 	paymentHandler "github.com/novriyantoAli/freeradius-service/internal/application/payment/handler"
 	userHandler "github.com/novriyantoAli/freeradius-service/internal/application/user/handler"
 	"github.com/novriyantoAli/freeradius-service/internal/middleware"
@@ -16,17 +17,20 @@ import (
 type Server struct {
 	userHandler    *userHandler.UserHandler
 	paymentHandler *paymentHandler.PaymentHandler
+	nasHandler     *nasHandler.NASHandler
 	logger         *zap.Logger
 }
 
 func NewServer(
 	userHandler *userHandler.UserHandler,
 	paymentHandler *paymentHandler.PaymentHandler,
+	nasHandler *nasHandler.NASHandler,
 	logger *zap.Logger,
 ) *Server {
 	return &Server{
 		userHandler:    userHandler,
 		paymentHandler: paymentHandler,
+		nasHandler:     nasHandler,
 		logger:         logger,
 	}
 }
@@ -49,6 +53,7 @@ func (s *Server) SetupRoutes(router *gin.Engine) {
 		s.registerHealthRoutes(api)
 		s.userHandler.RegisterRoutes(api)
 		s.paymentHandler.RegisterRoutes(api)
+		s.nasHandler.RegisterRoutes(router)
 	}
 }
 

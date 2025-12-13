@@ -1,6 +1,7 @@
 package migration
 
 import (
+	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
 	"github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
 	userEntity "github.com/novriyantoAli/freeradius-service/internal/application/user/entity"
 
@@ -27,6 +28,7 @@ func (s *Server) RunMigrations() error {
 	err := s.db.AutoMigrate(
 		&userEntity.User{},
 		&entity.Payment{},
+		&nasEntity.NAS{},
 	)
 	if err != nil {
 		s.logger.Error("Failed to run database migrations", zap.Error(err))
