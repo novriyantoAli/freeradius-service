@@ -125,11 +125,11 @@ func CreateUpdateNASRequestFixture() *nasDto.UpdateNASRequest {
 
 func CreateNASFilterFixture() *nasDto.NASFilter {
 	return &nasDto.NASFilter{
-		NASName:  "",
-		ShortName: "",
-		Type:      "",
+		NASName:     "",
+		ShortName:   "",
+		Type:        "",
 		Description: "",
-		Page:      1,
-		PageSize: 10,
+		Page:        1,
+		PageSize:    10,
 	}
 }

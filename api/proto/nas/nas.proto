@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package nas;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/novriyantoAli/freeradius-service/api/proto/nas";
+
+// NAS (Network Access Server) service definition
+service NASService {
+  // Create a new NAS
+  rpc CreateNAS(CreateNASRequest) returns (CreateNASResponse);
+  
+  // Get a NAS by ID
+  rpc GetNAS(GetNASRequest) returns (GetNASResponse);
+  
+  // List NAS with pagination and filtering
+  rpc ListNAS(ListNASRequest) returns (ListNASResponse);
+  
+  // Update a NAS
+  rpc UpdateNAS(UpdateNASRequest) returns (UpdateNASResponse);
+  
+  // Delete a NAS
+  rpc DeleteNAS(DeleteNASRequest) returns (DeleteNASResponse);
+}
+
+// NAS (Network Access Server) message
+message NAS {
+  uint32 id = 1;
+  string nasname = 2;
+  string shortname = 3;
+  string type = 4;
+  int32 ports = 5;
+  string secret = 6;
+  string server = 7;
+  string community = 8;
+  string description = 9;
+  string require_ma = 10;
+  string limit_proxy_state = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+}
+
+// Create NAS request
+message CreateNASRequest {
+  string nasname = 1;
+  string shortname = 2;
+  string type = 3;
+  int32 ports = 4;
+  string secret = 5;
+  string server = 6;
+  string community = 7;
+  string description = 8;
+  string require_ma = 9;
+  string limit_proxy_state = 10;
+}
+
+// Create NAS response
+message CreateNASResponse {
+  NAS nas = 1;
+}
+
+// Get NAS request
+message GetNASRequest {
+  uint32 id = 1;
+}
+
+// Get NAS response
+message GetNASResponse {
+  NAS nas = 1;
+}
+
+// NAS filter for list operations
+message NASFilter {
+  string nasname = 1;
+  string shortname = 2;
+  string type = 3;
+}
+
+// List NAS request
+message ListNASRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+  NASFilter filter = 3;
+}
+
+// List NAS response
+message ListNASResponse {
+  repeated NAS nas = 1;
+  int64 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+}
+
+// Update NAS request
+message UpdateNASRequest {
+  uint32 id = 1;
+  string nasname = 2;
+  string shortname = 3;
+  string type = 4;
+  int32 ports = 5;
+  string secret = 6;
+  string server = 7;
+  string community = 8;
+  string description = 9;
+  string require_ma = 10;
+  string limit_proxy_state = 11;
+}
+
+// Update NAS response
+message UpdateNASResponse {
+  NAS nas = 1;
+}
+
+// Delete NAS request
+message DeleteNASRequest {
+  uint32 id = 1;
+}
+
+// Delete NAS response
+message DeleteNASResponse {
+  bool success = 1;
+}

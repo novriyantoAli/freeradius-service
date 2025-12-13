@@ -168,7 +168,7 @@ func TestNASRepository_GetAll(t *testing.T) {
 
 		// Then
 		assert.NoError(t, err)
-		assert.Len(t, nasServers, 3)      // Should return 3 NAS due to page size
+		assert.Len(t, nasServers, 3)          // Should return 3 NAS due to page size
 		assert.Equal(t, int64(5), totalCount) // Total count should be 5
 	})
 

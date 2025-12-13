@@ -332,13 +332,13 @@ func TestNASHandler_UpdateNAS(t *testing.T) {
 		nasID := uint(1)
 		req := testutil.CreateUpdateNASRequestFixture()
 		response := &nasDto.NASResponse{
-			ID:              nasID,
-			NASName:         "updated-nas",
-			ShortName:       req.ShortName,
-			Type:            req.Type,
-			Description:     req.Description,
-			CreatedAt:       time.Now().String(),
-			UpdatedAt:       time.Now().String(),
+			ID:          nasID,
+			NASName:     "updated-nas",
+			ShortName:   req.ShortName,
+			Type:        req.Type,
+			Description: req.Description,
+			CreatedAt:   time.Now().String(),
+			UpdatedAt:   time.Now().String(),
 		}
 
 		mockService.On("UpdateNAS", nasID, mock.AnythingOfType("*dto.UpdateNASRequest")).Return(response, nil)
