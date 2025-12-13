@@ -84,25 +84,22 @@ func (s *radcheckService) ListRadcheck(filter *dto.RadcheckFilter) (*dto.ListRad
 		filter.PageSize = 100
 	}
 
-	radchecks, total, err := s.repo.GetAll(filter)
+	radchecks, totalCount, err := s.repo.GetAll(filter)
 	if err != nil {
-		s.logger.Error("Failed to list radchecks", zap.Error(err))
 		return nil, err
 	}
 
-	responses := make([]dto.RadcheckResponse, len(radchecks))
-	for i, rc := range radchecks {
-		responses[i] = *s.entityToResponse(&rc)
+	responses := make([]dto.RadcheckResponse, 0, len(radchecks))
+	for _, radcheck := range radchecks {
+		responses = append(responses, *s.entityToResponse(&radcheck))
 	}
-
-	totalPage := int((total + int64(filter.PageSize) - 1) / int64(filter.PageSize))
 
 	return &dto.ListRadcheckResponse{
 		Data:      responses,
-		Total:     total,
+		Total:     totalCount,
 		Page:      filter.Page,
 		PageSize:  filter.PageSize,
-		TotalPage: totalPage,
+		TotalPage: (int(totalCount) + filter.PageSize - 1) / filter.PageSize,
 	}, nil
 }
 
@@ -130,7 +127,7 @@ func (s *radcheckService) UpdateRadcheck(id uint, req *dto.UpdateRadcheckRequest
 
 	err = s.repo.Update(radcheck)
 	if err != nil {
-		s.logger.Error("Failed to update radcheck", zap.Uint("id", id), zap.Error(err))
+		s.logger.Error("Failed to update radcheck", zap.Error(err))
 		return nil, err
 	}
 
