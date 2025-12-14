@@ -4,6 +4,7 @@ import (
 	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
 	paymentEntity "github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
 	radcheckEntity "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
+	radreplyEntity "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	userEntity "github.com/novriyantoAli/freeradius-service/internal/application/user/entity"
 
 	"gorm.io/driver/sqlite"
@@ -26,6 +27,7 @@ func SetupTestDB() (*gorm.DB, error) {
 		&paymentEntity.Payment{},
 		&nasEntity.NAS{},
 		&radcheckEntity.Radcheck{},
+		&radreplyEntity.Radreply{},
 	)
 	if err != nil {
 		return nil, err
@@ -47,6 +49,9 @@ func CleanDB(db *gorm.DB) error {
 		return err
 	}
 	if err := db.Exec("DELETE FROM radcheck").Error; err != nil {
+		return err
+	}
+	if err := db.Exec("DELETE FROM radreply").Error; err != nil {
 		return err
 	}
 	return nil

@@ -6,6 +6,7 @@ toolchain go1.23.8
 
 require (
 	github.com/gin-gonic/gin v1.10.1
+	github.com/golang/protobuf v1.5.3
 	github.com/hibiken/asynq v0.24.1
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.10.0
@@ -43,7 +44,6 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect

@@ -3,10 +3,12 @@ package testutil
 import (
 	nasDto "github.com/novriyantoAli/freeradius-service/internal/application/nas/dto"
 	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
-	radcheckDto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
-	radcheckEntity "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	paymentDto "github.com/novriyantoAli/freeradius-service/internal/application/payment/dto"
 	paymentEntity "github.com/novriyantoAli/freeradius-service/internal/application/payment/entity"
+	radcheckDto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
+	radcheckEntity "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
+	radreplyDto "github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
+	radreplyEntity "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	userDto "github.com/novriyantoAli/freeradius-service/internal/application/user/dto"
 	userEntity "github.com/novriyantoAli/freeradius-service/internal/application/user/entity"
 )
@@ -159,6 +161,44 @@ func CreateUpdateRadcheckRequestFixture() *radcheckDto.UpdateRadcheckRequest {
 
 func CreateRadcheckFilterFixture() *radcheckDto.RadcheckFilter {
 	return &radcheckDto.RadcheckFilter{
+		Username:  "",
+		Attribute: "",
+		Page:      1,
+		PageSize:  10,
+	}
+}
+
+// Radreply fixtures
+func CreateRadreplyFixture() *radreplyEntity.Radreply {
+	return &radreplyEntity.Radreply{
+		ID:        1,
+		Username:  "john",
+		Attribute: "Reply-Message",
+		Op:        "=",
+		Value:     "Welcome",
+	}
+}
+
+func CreateRadreplyRequestFixture() *radreplyDto.CreateRadreplyRequest {
+	return &radreplyDto.CreateRadreplyRequest{
+		Username:  "john",
+		Attribute: "Reply-Message",
+		Op:        "=",
+		Value:     "Welcome",
+	}
+}
+
+func CreateUpdateRadreplyRequestFixture() *radreplyDto.UpdateRadreplyRequest {
+	return &radreplyDto.UpdateRadreplyRequest{
+		Username:  "john",
+		Attribute: "Reply-Message",
+		Op:        "=",
+		Value:     "Updated",
+	}
+}
+
+func CreateRadreplyFilterFixture() *radreplyDto.RadreplyFilter {
+	return &radreplyDto.RadreplyFilter{
 		Username:  "",
 		Attribute: "",
 		Page:      1,
