@@ -4,8 +4,10 @@ import (
 	"context"
 	"net"
 
+	"github.com/novriyantoAli/freeradius-service/api/proto/auth"
 	"github.com/novriyantoAli/freeradius-service/api/proto/payment"
 	"github.com/novriyantoAli/freeradius-service/api/proto/user"
+	authHandler "github.com/novriyantoAli/freeradius-service/internal/application/auth/handler"
 	paymentHandler "github.com/novriyantoAli/freeradius-service/internal/application/payment/handler"
 	userHandler "github.com/novriyantoAli/freeradius-service/internal/application/user/handler"
 
@@ -16,12 +18,14 @@ import (
 type Server struct {
 	server         *grpc.Server
 	logger         *zap.Logger
+	authHandler    *authHandler.AuthGrpcHandler
 	userHandler    *userHandler.UserGrpcHandler
 	paymentHandler *paymentHandler.PaymentGrpcHandler
 }
 
 func NewServer(
 	logger *zap.Logger,
+	authHandler *authHandler.AuthGrpcHandler,
 	userHandler *userHandler.UserGrpcHandler,
 	paymentHandler *paymentHandler.PaymentGrpcHandler,
 ) *Server {
@@ -33,6 +37,7 @@ func NewServer(
 	return &Server{
 		server:         server,
 		logger:         logger,
+		authHandler:    authHandler,
 		userHandler:    userHandler,
 		paymentHandler: paymentHandler,
 	}
@@ -40,6 +45,10 @@ func NewServer(
 
 func (s *Server) RegisterServices() {
 	s.logger.Info("Registering gRPC services")
+
+	// Register auth service
+	auth.RegisterAuthServiceServer(s.server, s.authHandler)
+	s.logger.Info("Auth service registered")
 
 	// Register user service
 	user.RegisterUserServiceServer(s.server, s.userHandler)
