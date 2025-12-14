@@ -42,7 +42,7 @@ func (h *AuthHandler) Authenticate(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.service.Authenticate(&req)
+	result, err := h.service.Authenticate(ctx.Request.Context(), &req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return

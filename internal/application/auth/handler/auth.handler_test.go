@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -11,10 +12,10 @@ import (
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/handler"
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/service"
-	radcheck "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	radcheckdto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
-	radreply "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
+	radcheck "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	radrepldto "github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
+	radreply "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	"github.com/novriyantoAli/freeradius-service/internal/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
@@ -26,7 +27,7 @@ func TestAuthHandler_Authenticate_Success(t *testing.T) {
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
 		return []radreply.Radreply{}, 0, nil
 	}
 

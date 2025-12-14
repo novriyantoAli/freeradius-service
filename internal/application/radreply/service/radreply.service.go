@@ -1,18 +1,21 @@
 package service
 
 import (
+	"context"
+	"errors"
+
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/repository"
 )
 
 type RadreplyService interface {
-	CreateRadreply(req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error)
-	GetRadreplyByID(id uint) (*dto.RadreplyResponse, error)
-	GetRadreplyByUsernameAndAttribute(username, attribute string) (*dto.RadreplyResponse, error)
-	ListRadreply(filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error)
-	UpdateRadreply(id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error)
-	DeleteRadreply(id uint) error
+	CreateRadreply(ctx context.Context, req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error)
+	GetRadreplyByID(ctx context.Context, id uint) (*dto.RadreplyResponse, error)
+	GetRadreplyByUsernameAndAttribute(ctx context.Context, username, attribute string) (*dto.RadreplyResponse, error)
+	ListRadreply(ctx context.Context, filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error)
+	UpdateRadreply(ctx context.Context, id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error)
+	DeleteRadreply(ctx context.Context, id uint) error
 }
 
 type radreplyService struct {
@@ -23,7 +26,12 @@ func NewRadreplyService(repository repository.RadreplyRepository) RadreplyServic
 	return &radreplyService{repository: repository}
 }
 
-func (s *radreplyService) CreateRadreply(req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error) {
+func (s *radreplyService) CreateRadreply(ctx context.Context, req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error) {
+	// Validate constraints before transaction (fail-fast principle)
+	if err := s.validateCreateRequest(req); err != nil {
+		return nil, err
+	}
+
 	radreply := &entity.Radreply{
 		Username:  req.Username,
 		Attribute: req.Attribute,
@@ -31,15 +39,15 @@ func (s *radreplyService) CreateRadreply(req *dto.CreateRadreplyRequest) (*dto.R
 		Value:     req.Value,
 	}
 
-	if err := s.repository.Create(radreply); err != nil {
+	if err := s.repository.Create(ctx, radreply); err != nil {
 		return nil, err
 	}
 
 	return s.entityToResponse(radreply), nil
 }
 
-func (s *radreplyService) GetRadreplyByID(id uint) (*dto.RadreplyResponse, error) {
-	radreply, err := s.repository.GetByID(id)
+func (s *radreplyService) GetRadreplyByID(ctx context.Context, id uint) (*dto.RadreplyResponse, error) {
+	radreply, err := s.repository.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +55,8 @@ func (s *radreplyService) GetRadreplyByID(id uint) (*dto.RadreplyResponse, error
 	return s.entityToResponse(radreply), nil
 }
 
-func (s *radreplyService) GetRadreplyByUsernameAndAttribute(username, attribute string) (*dto.RadreplyResponse, error) {
-	radreply, err := s.repository.GetByUsernameAndAttribute(username, attribute)
+func (s *radreplyService) GetRadreplyByUsernameAndAttribute(ctx context.Context, username, attribute string) (*dto.RadreplyResponse, error) {
+	radreply, err := s.repository.GetByUsernameAndAttribute(ctx, username, attribute)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +64,7 @@ func (s *radreplyService) GetRadreplyByUsernameAndAttribute(username, attribute 
 	return s.entityToResponse(radreply), nil
 }
 
-func (s *radreplyService) ListRadreply(filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error) {
+func (s *radreplyService) ListRadreply(ctx context.Context, filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error) {
 	if filter.Page <= 0 {
 		filter.Page = 1
 	}
@@ -67,7 +75,7 @@ func (s *radreplyService) ListRadreply(filter *dto.RadreplyFilter) (*dto.ListRad
 		filter.PageSize = 100
 	}
 
-	radreply, total, err := s.repository.GetAll(filter)
+	radreply, total, err := s.repository.GetAll(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +96,13 @@ func (s *radreplyService) ListRadreply(filter *dto.RadreplyFilter) (*dto.ListRad
 	}, nil
 }
 
-func (s *radreplyService) UpdateRadreply(id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error) {
-	radreply, err := s.repository.GetByID(id)
+func (s *radreplyService) UpdateRadreply(ctx context.Context, id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error) {
+	// Validate constraints before fetching (fail-fast principle)
+	if err := s.validateUpdateRequest(req); err != nil {
+		return nil, err
+	}
+
+	radreply, err := s.repository.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -107,15 +120,15 @@ func (s *radreplyService) UpdateRadreply(id uint, req *dto.UpdateRadreplyRequest
 		radreply.Value = req.Value
 	}
 
-	if err := s.repository.Update(radreply); err != nil {
+	if err := s.repository.Update(ctx, radreply); err != nil {
 		return nil, err
 	}
 
 	return s.entityToResponse(radreply), nil
 }
 
-func (s *radreplyService) DeleteRadreply(id uint) error {
-	return s.repository.Delete(id)
+func (s *radreplyService) DeleteRadreply(ctx context.Context, id uint) error {
+	return s.repository.Delete(ctx, id)
 }
 
 func (s *radreplyService) entityToResponse(radreply *entity.Radreply) *dto.RadreplyResponse {
@@ -126,4 +139,63 @@ func (s *radreplyService) entityToResponse(radreply *entity.Radreply) *dto.Radre
 		Op:        radreply.Op,
 		Value:     radreply.Value,
 	}
+}
+
+// DB Constraint Validation Methods
+
+func (s *radreplyService) validateCreateRequest(req *dto.CreateRadreplyRequest) error {
+	// Username constraint: NOT NULL, size 1-64
+	if req.Username == "" {
+		return errors.New("username is required")
+	}
+	if len(req.Username) > 64 {
+		return errors.New("username must not exceed 64 characters")
+	}
+
+	// Attribute constraint: NOT NULL, size 1-64
+	if req.Attribute == "" {
+		return errors.New("attribute is required")
+	}
+	if len(req.Attribute) > 64 {
+		return errors.New("attribute must not exceed 64 characters")
+	}
+
+	// Op constraint: NOT NULL, size 1-2, default '='
+	if req.Op == "" {
+		return errors.New("op is required")
+	}
+	if len(req.Op) > 2 {
+		return errors.New("op must not exceed 2 characters")
+	}
+
+	// Value constraint: NOT NULL, size 1-253
+	if req.Value == "" {
+		return errors.New("value is required")
+	}
+	if len(req.Value) > 253 {
+		return errors.New("value must not exceed 253 characters")
+	}
+
+	return nil
+}
+
+func (s *radreplyService) validateUpdateRequest(req *dto.UpdateRadreplyRequest) error {
+	// Only validate fields that are being updated
+	if req.Username != "" && len(req.Username) > 64 {
+		return errors.New("username must not exceed 64 characters")
+	}
+
+	if req.Attribute != "" && len(req.Attribute) > 64 {
+		return errors.New("attribute must not exceed 64 characters")
+	}
+
+	if req.Op != "" && len(req.Op) > 2 {
+		return errors.New("op must not exceed 2 characters")
+	}
+
+	if req.Value != "" && len(req.Value) > 253 {
+		return errors.New("value must not exceed 253 characters")
+	}
+
+	return nil
 }

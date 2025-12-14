@@ -1,14 +1,15 @@
 package service_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/service"
-	radcheck "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	radcheckdto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
-	radreply "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
+	radcheck "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	radrepldto "github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
+	radreply "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	"github.com/novriyantoAli/freeradius-service/internal/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +21,7 @@ func TestAuthService_Authenticate_Success(t *testing.T) {
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
 		return []radreply.Radreply{*testutil.CreateRadreplyFixture()}, 1, nil
 	}
 
@@ -31,7 +32,7 @@ func TestAuthService_Authenticate_Success(t *testing.T) {
 		Password: "testing123",
 	}
 
-	result, err := authService.Authenticate(req)
+	result, err := authService.Authenticate(context.Background(), req)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -47,7 +48,7 @@ func TestAuthService_Authenticate_InvalidPassword(t *testing.T) {
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
 		return []radreply.Radreply{}, 0, nil
 	}
 
@@ -58,7 +59,7 @@ func TestAuthService_Authenticate_InvalidPassword(t *testing.T) {
 		Password: "wrongpassword",
 	}
 
-	result, err := authService.Authenticate(req)
+	result, err := authService.Authenticate(context.Background(), req)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -73,7 +74,7 @@ func TestAuthService_Authenticate_UserNotFound(t *testing.T) {
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
 		return []radreply.Radreply{}, 0, nil
 	}
 
@@ -84,7 +85,7 @@ func TestAuthService_Authenticate_UserNotFound(t *testing.T) {
 		Password: "anypassword",
 	}
 
-	result, err := authService.Authenticate(req)
+	result, err := authService.Authenticate(context.Background(), req)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -108,7 +109,7 @@ func TestAuthService_Authenticate_MultipleAttributes(t *testing.T) {
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
 		return []radreply.Radreply{}, 0, nil
 	}
 
@@ -119,7 +120,7 @@ func TestAuthService_Authenticate_MultipleAttributes(t *testing.T) {
 		Password: "testing123",
 	}
 
-	result, err := authService.Authenticate(req)
+	result, err := authService.Authenticate(context.Background(), req)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -134,7 +135,7 @@ func TestAuthService_Authenticate_WithReplyAttributes(t *testing.T) {
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
 		return []radreply.Radreply{
 			{
 				ID:        1,
@@ -153,7 +154,7 @@ func TestAuthService_Authenticate_WithReplyAttributes(t *testing.T) {
 		Password: "testing123",
 	}
 
-	result, err := authService.Authenticate(req)
+	result, err := authService.Authenticate(context.Background(), req)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)

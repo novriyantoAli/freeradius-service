@@ -1,6 +1,8 @@
 package testutil
 
 import (
+	"context"
+
 	nasDto "github.com/novriyantoAli/freeradius-service/internal/application/nas/dto"
 	nasEntity "github.com/novriyantoAli/freeradius-service/internal/application/nas/entity"
 	paymentDto "github.com/novriyantoAli/freeradius-service/internal/application/payment/dto"
@@ -427,78 +429,78 @@ func (m *MockRadcheckService) DeleteRadcheck(id uint) error {
 
 // MockRadreplyRepository is a mock implementation of RadreplyRepository with function fields
 type MockRadreplyRepository struct {
-	CreateFn                    func(*radreplyEntity.Radreply) error
-	GetByIDFn                   func(uint) (*radreplyEntity.Radreply, error)
-	GetByUsernameAndAttributeFn func(string, string) (*radreplyEntity.Radreply, error)
-	GetAllFn                    func(*radreplyDto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error)
-	UpdateFn                    func(*radreplyEntity.Radreply) error
-	DeleteFn                    func(uint) error
+	CreateFn                    func(context.Context, *radreplyEntity.Radreply) error
+	GetByIDFn                   func(context.Context, uint) (*radreplyEntity.Radreply, error)
+	GetByUsernameAndAttributeFn func(context.Context, string, string) (*radreplyEntity.Radreply, error)
+	GetAllFn                    func(context.Context, *radreplyDto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error)
+	UpdateFn                    func(context.Context, *radreplyEntity.Radreply) error
+	DeleteFn                    func(context.Context, uint) error
 }
 
 func NewMockRadreplyRepository() *MockRadreplyRepository {
 	return &MockRadreplyRepository{}
 }
 
-func (m *MockRadreplyRepository) Create(radreply *radreplyEntity.Radreply) error {
+func (m *MockRadreplyRepository) Create(ctx context.Context, radreply *radreplyEntity.Radreply) error {
 	if m.CreateFn != nil {
-		return m.CreateFn(radreply)
+		return m.CreateFn(ctx, radreply)
 	}
 	radreply.ID = 1
 	return nil
 }
 
-func (m *MockRadreplyRepository) GetByID(id uint) (*radreplyEntity.Radreply, error) {
+func (m *MockRadreplyRepository) GetByID(ctx context.Context, id uint) (*radreplyEntity.Radreply, error) {
 	if m.GetByIDFn != nil {
-		return m.GetByIDFn(id)
+		return m.GetByIDFn(ctx, id)
 	}
 	return CreateRadreplyFixture(), nil
 }
 
-func (m *MockRadreplyRepository) GetByUsernameAndAttribute(username, attribute string) (*radreplyEntity.Radreply, error) {
+func (m *MockRadreplyRepository) GetByUsernameAndAttribute(ctx context.Context, username, attribute string) (*radreplyEntity.Radreply, error) {
 	if m.GetByUsernameAndAttributeFn != nil {
-		return m.GetByUsernameAndAttributeFn(username, attribute)
+		return m.GetByUsernameAndAttributeFn(ctx, username, attribute)
 	}
 	return CreateRadreplyFixture(), nil
 }
 
-func (m *MockRadreplyRepository) GetAll(filter *radreplyDto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error) {
+func (m *MockRadreplyRepository) GetAll(ctx context.Context, filter *radreplyDto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error) {
 	if m.GetAllFn != nil {
-		return m.GetAllFn(filter)
+		return m.GetAllFn(ctx, filter)
 	}
 	return []radreplyEntity.Radreply{*CreateRadreplyFixture()}, 1, nil
 }
 
-func (m *MockRadreplyRepository) Update(radreply *radreplyEntity.Radreply) error {
+func (m *MockRadreplyRepository) Update(ctx context.Context, radreply *radreplyEntity.Radreply) error {
 	if m.UpdateFn != nil {
-		return m.UpdateFn(radreply)
+		return m.UpdateFn(ctx, radreply)
 	}
 	return nil
 }
 
-func (m *MockRadreplyRepository) Delete(id uint) error {
+func (m *MockRadreplyRepository) Delete(ctx context.Context, id uint) error {
 	if m.DeleteFn != nil {
-		return m.DeleteFn(id)
+		return m.DeleteFn(ctx, id)
 	}
 	return nil
 }
 
 // MockRadreplyService is a mock implementation of RadreplyService with function fields
 type MockRadreplyService struct {
-	CreateRadreplyFn                    func(*radreplyDto.CreateRadreplyRequest) (*radreplyDto.RadreplyResponse, error)
-	GetRadreplyByIDFn                   func(uint) (*radreplyDto.RadreplyResponse, error)
-	GetRadreplyByUsernameAndAttributeFn func(string, string) (*radreplyDto.RadreplyResponse, error)
-	ListRadreplyFn                      func(*radreplyDto.RadreplyFilter) (*radreplyDto.ListRadreplyResponse, error)
-	UpdateRadreplyFn                    func(uint, *radreplyDto.UpdateRadreplyRequest) (*radreplyDto.RadreplyResponse, error)
-	DeleteRadreplyFn                    func(uint) error
+	CreateRadreplyFn                    func(context.Context, *radreplyDto.CreateRadreplyRequest) (*radreplyDto.RadreplyResponse, error)
+	GetRadreplyByIDFn                   func(context.Context, uint) (*radreplyDto.RadreplyResponse, error)
+	GetRadreplyByUsernameAndAttributeFn func(context.Context, string, string) (*radreplyDto.RadreplyResponse, error)
+	ListRadreplyFn                      func(context.Context, *radreplyDto.RadreplyFilter) (*radreplyDto.ListRadreplyResponse, error)
+	UpdateRadreplyFn                    func(context.Context, uint, *radreplyDto.UpdateRadreplyRequest) (*radreplyDto.RadreplyResponse, error)
+	DeleteRadreplyFn                    func(context.Context, uint) error
 }
 
 func NewMockRadreplyService() *MockRadreplyService {
 	return &MockRadreplyService{}
 }
 
-func (m *MockRadreplyService) CreateRadreply(req *radreplyDto.CreateRadreplyRequest) (*radreplyDto.RadreplyResponse, error) {
+func (m *MockRadreplyService) CreateRadreply(ctx context.Context, req *radreplyDto.CreateRadreplyRequest) (*radreplyDto.RadreplyResponse, error) {
 	if m.CreateRadreplyFn != nil {
-		return m.CreateRadreplyFn(req)
+		return m.CreateRadreplyFn(ctx, req)
 	}
 	return &radreplyDto.RadreplyResponse{
 		ID:        1,
@@ -509,9 +511,9 @@ func (m *MockRadreplyService) CreateRadreply(req *radreplyDto.CreateRadreplyRequ
 	}, nil
 }
 
-func (m *MockRadreplyService) GetRadreplyByID(id uint) (*radreplyDto.RadreplyResponse, error) {
+func (m *MockRadreplyService) GetRadreplyByID(ctx context.Context, id uint) (*radreplyDto.RadreplyResponse, error) {
 	if m.GetRadreplyByIDFn != nil {
-		return m.GetRadreplyByIDFn(id)
+		return m.GetRadreplyByIDFn(ctx, id)
 	}
 	fixture := CreateRadreplyFixture()
 	return &radreplyDto.RadreplyResponse{
@@ -523,9 +525,9 @@ func (m *MockRadreplyService) GetRadreplyByID(id uint) (*radreplyDto.RadreplyRes
 	}, nil
 }
 
-func (m *MockRadreplyService) GetRadreplyByUsernameAndAttribute(username, attribute string) (*radreplyDto.RadreplyResponse, error) {
+func (m *MockRadreplyService) GetRadreplyByUsernameAndAttribute(ctx context.Context, username, attribute string) (*radreplyDto.RadreplyResponse, error) {
 	if m.GetRadreplyByUsernameAndAttributeFn != nil {
-		return m.GetRadreplyByUsernameAndAttributeFn(username, attribute)
+		return m.GetRadreplyByUsernameAndAttributeFn(ctx, username, attribute)
 	}
 	fixture := CreateRadreplyFixture()
 	return &radreplyDto.RadreplyResponse{
@@ -537,9 +539,9 @@ func (m *MockRadreplyService) GetRadreplyByUsernameAndAttribute(username, attrib
 	}, nil
 }
 
-func (m *MockRadreplyService) ListRadreply(filter *radreplyDto.RadreplyFilter) (*radreplyDto.ListRadreplyResponse, error) {
+func (m *MockRadreplyService) ListRadreply(ctx context.Context, filter *radreplyDto.RadreplyFilter) (*radreplyDto.ListRadreplyResponse, error) {
 	if m.ListRadreplyFn != nil {
-		return m.ListRadreplyFn(filter)
+		return m.ListRadreplyFn(ctx, filter)
 	}
 	fixture := CreateRadreplyFixture()
 	return &radreplyDto.ListRadreplyResponse{
@@ -559,9 +561,9 @@ func (m *MockRadreplyService) ListRadreply(filter *radreplyDto.RadreplyFilter) (
 	}, nil
 }
 
-func (m *MockRadreplyService) UpdateRadreply(id uint, req *radreplyDto.UpdateRadreplyRequest) (*radreplyDto.RadreplyResponse, error) {
+func (m *MockRadreplyService) UpdateRadreply(ctx context.Context, id uint, req *radreplyDto.UpdateRadreplyRequest) (*radreplyDto.RadreplyResponse, error) {
 	if m.UpdateRadreplyFn != nil {
-		return m.UpdateRadreplyFn(id, req)
+		return m.UpdateRadreplyFn(ctx, id, req)
 	}
 	return &radreplyDto.RadreplyResponse{
 		ID:        id,
@@ -572,9 +574,9 @@ func (m *MockRadreplyService) UpdateRadreply(id uint, req *radreplyDto.UpdateRad
 	}, nil
 }
 
-func (m *MockRadreplyService) DeleteRadreply(id uint) error {
+func (m *MockRadreplyService) DeleteRadreply(ctx context.Context, id uint) error {
 	if m.DeleteRadreplyFn != nil {
-		return m.DeleteRadreplyFn(id)
+		return m.DeleteRadreplyFn(ctx, id)
 	}
 	return nil
 }

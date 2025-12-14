@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -52,7 +53,7 @@ func TestRadreplyHandler_CreateRadreply(t *testing.T) {
 
 	t.Run("should return internal error when service fails", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.CreateRadreplyFn = func(req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error) {
+		service.CreateRadreplyFn = func(ctx context.Context, req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error) {
 			return nil, gorm.ErrInvalidDB
 		}
 		handler := NewRadreplyHandler(service)
@@ -76,7 +77,7 @@ func TestRadreplyHandler_CreateRadreply(t *testing.T) {
 func TestRadreplyHandler_GetRadreply(t *testing.T) {
 	t.Run("should get radreply successfully", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.GetRadreplyByIDFn = func(id uint) (*dto.RadreplyResponse, error) {
+		service.GetRadreplyByIDFn = func(ctx context.Context, id uint) (*dto.RadreplyResponse, error) {
 			return &dto.RadreplyResponse{
 				ID:        1,
 				Username:  "john",
@@ -100,7 +101,7 @@ func TestRadreplyHandler_GetRadreply(t *testing.T) {
 
 	t.Run("should return not found when radreply not found", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.GetRadreplyByIDFn = func(id uint) (*dto.RadreplyResponse, error) {
+		service.GetRadreplyByIDFn = func(ctx context.Context, id uint) (*dto.RadreplyResponse, error) {
 			return nil, gorm.ErrRecordNotFound
 		}
 		handler := NewRadreplyHandler(service)
@@ -135,7 +136,7 @@ func TestRadreplyHandler_GetRadreply(t *testing.T) {
 func TestRadreplyHandler_ListRadreply(t *testing.T) {
 	t.Run("should list radreply successfully", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.ListRadreplyFn = func(filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error) {
+		service.ListRadreplyFn = func(ctx context.Context, filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error) {
 			return &dto.ListRadreplyResponse{
 				Data: []dto.RadreplyResponse{
 					{
@@ -182,7 +183,7 @@ func TestRadreplyHandler_ListRadreply(t *testing.T) {
 
 	t.Run("should return internal error when service fails", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.ListRadreplyFn = func(filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error) {
+		service.ListRadreplyFn = func(ctx context.Context, filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error) {
 			return nil, gorm.ErrInvalidDB
 		}
 		handler := NewRadreplyHandler(service)
@@ -202,7 +203,7 @@ func TestRadreplyHandler_ListRadreply(t *testing.T) {
 func TestRadreplyHandler_UpdateRadreply(t *testing.T) {
 	t.Run("should update radreply successfully", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.UpdateRadreplyFn = func(id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error) {
+		service.UpdateRadreplyFn = func(ctx context.Context, id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error) {
 			return &dto.RadreplyResponse{
 				ID:        1,
 				Username:  "john",
@@ -230,7 +231,7 @@ func TestRadreplyHandler_UpdateRadreply(t *testing.T) {
 
 	t.Run("should return not found when radreply not found", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.UpdateRadreplyFn = func(id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error) {
+		service.UpdateRadreplyFn = func(ctx context.Context, id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error) {
 			return nil, gorm.ErrRecordNotFound
 		}
 		handler := NewRadreplyHandler(service)
@@ -289,7 +290,7 @@ func TestRadreplyHandler_UpdateRadreply(t *testing.T) {
 func TestRadreplyHandler_DeleteRadreply(t *testing.T) {
 	t.Run("should delete radreply successfully", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.DeleteRadreplyFn = func(id uint) error {
+		service.DeleteRadreplyFn = func(ctx context.Context, id uint) error {
 			return nil
 		}
 		handler := NewRadreplyHandler(service)
@@ -322,7 +323,7 @@ func TestRadreplyHandler_DeleteRadreply(t *testing.T) {
 
 	t.Run("should return internal error when service fails", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		service.DeleteRadreplyFn = func(id uint) error {
+		service.DeleteRadreplyFn = func(ctx context.Context, id uint) error {
 			return gorm.ErrInvalidDB
 		}
 		handler := NewRadreplyHandler(service)

@@ -48,7 +48,7 @@ func (h *RadreplyHandler) CreateRadreply(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.service.CreateRadreply(&req)
+	result, err := h.service.CreateRadreply(ctx.Request.Context(), &req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -75,7 +75,7 @@ func (h *RadreplyHandler) GetRadreply(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.service.GetRadreplyByID(uint(id))
+	result, err := h.service.GetRadreplyByID(ctx.Request.Context(), uint(id))
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, gin.H{"message": "radreply not found"})
@@ -110,7 +110,7 @@ func (h *RadreplyHandler) ListRadreply(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.service.ListRadreply(&filter)
+	result, err := h.service.ListRadreply(ctx.Request.Context(), &filter)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
@@ -146,7 +146,7 @@ func (h *RadreplyHandler) UpdateRadreply(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.service.UpdateRadreply(uint(id), &req)
+	result, err := h.service.UpdateRadreply(ctx.Request.Context(), uint(id), &req)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, gin.H{"message": "radreply not found"})
@@ -177,7 +177,7 @@ func (h *RadreplyHandler) DeleteRadreply(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteRadreply(uint(id)); err != nil {
+	if err := h.service.DeleteRadreply(ctx.Request.Context(), uint(id)); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}

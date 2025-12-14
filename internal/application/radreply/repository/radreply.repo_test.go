@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -26,7 +27,7 @@ func TestRadreplyRepository_Create(t *testing.T) {
 		Value:     "Welcome",
 	}
 
-	err = repo.Create(radreply)
+	err = repo.Create(context.Background(), radreply)
 
 	assert.NoError(t, err)
 	assert.NotZero(t, radreply.ID)
@@ -42,7 +43,7 @@ func TestRadreplyRepository_GetByID(t *testing.T) {
 	radreply := testutil.CreateRadreplyFixture()
 	db.Create(radreply)
 
-	result, err := repo.GetByID(radreply.ID)
+	result, err := repo.GetByID(context.Background(), radreply.ID)
 
 	assert.NoError(t, err)
 	assert.Equal(t, radreply.ID, result.ID)
@@ -56,7 +57,7 @@ func TestRadreplyRepository_GetByID_NotFound(t *testing.T) {
 
 	repo := NewRadreplyRepository(db)
 
-	result, err := repo.GetByID(9999)
+	result, err := repo.GetByID(context.Background(), 9999)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -73,7 +74,7 @@ func TestRadreplyRepository_GetByUsernameAndAttribute(t *testing.T) {
 	radreply := testutil.CreateRadreplyFixture()
 	db.Create(radreply)
 
-	result, err := repo.GetByUsernameAndAttribute(radreply.Username, radreply.Attribute)
+	result, err := repo.GetByUsernameAndAttribute(context.Background(), radreply.Username, radreply.Attribute)
 
 	assert.NoError(t, err)
 	assert.Equal(t, radreply.Username, result.Username)
@@ -87,7 +88,7 @@ func TestRadreplyRepository_GetByUsernameAndAttribute_NotFound(t *testing.T) {
 
 	repo := NewRadreplyRepository(db)
 
-	result, err := repo.GetByUsernameAndAttribute("nonexistent", "nonexistent")
+	result, err := repo.GetByUsernameAndAttribute(context.Background(), "nonexistent", "nonexistent")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -121,7 +122,7 @@ func TestRadreplyRepository_GetAll(t *testing.T) {
 		PageSize: 10,
 	}
 
-	result, total, err := repo.GetAll(filter)
+	result, total, err := repo.GetAll(context.Background(), filter)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(2), total)
@@ -147,7 +148,7 @@ func TestRadreplyRepository_GetAll_WithFilter(t *testing.T) {
 		PageSize: 10,
 	}
 
-	result, total, err := repo.GetAll(filter)
+	result, total, err := repo.GetAll(context.Background(), filter)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), total)
@@ -176,7 +177,7 @@ func TestRadreplyRepository_GetAll_Pagination(t *testing.T) {
 		PageSize: 10,
 	}
 
-	result, total, err := repo.GetAll(filter)
+	result, total, err := repo.GetAll(context.Background(), filter)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(15), total)
@@ -195,7 +196,7 @@ func TestRadreplyRepository_GetAll_Empty(t *testing.T) {
 		PageSize: 10,
 	}
 
-	result, total, err := repo.GetAll(filter)
+	result, total, err := repo.GetAll(context.Background(), filter)
 
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), total)
@@ -214,11 +215,11 @@ func TestRadreplyRepository_Update(t *testing.T) {
 
 	radreply.Value = "Updated Value"
 
-	err = repo.Update(radreply)
+	err = repo.Update(context.Background(), radreply)
 
 	assert.NoError(t, err)
 
-	updated, _ := repo.GetByID(radreply.ID)
+	updated, _ := repo.GetByID(context.Background(), radreply.ID)
 	assert.Equal(t, "Updated Value", updated.Value)
 }
 
@@ -232,11 +233,11 @@ func TestRadreplyRepository_Delete(t *testing.T) {
 	radreply := testutil.CreateRadreplyFixture()
 	db.Create(radreply)
 
-	err = repo.Delete(radreply.ID)
+	err = repo.Delete(context.Background(), radreply.ID)
 
 	assert.NoError(t, err)
 
-	result, err := repo.GetByID(radreply.ID)
+	result, err := repo.GetByID(context.Background(), radreply.ID)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)

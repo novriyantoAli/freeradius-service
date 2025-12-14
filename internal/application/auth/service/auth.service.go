@@ -1,21 +1,22 @@
 package service
 
 import (
+	"context"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/dto"
-	radcheckrepo "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/repository"
-	radreplyrepo "github.com/novriyantoAli/freeradius-service/internal/application/radreply/repository"
-	radreplyentity "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	radcheckdto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
+	radcheckrepo "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/repository"
 	radrepldto "github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
+	radreplyentity "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
+	radreplyrepo "github.com/novriyantoAli/freeradius-service/internal/application/radreply/repository"
 )
 
 // AuthService defines authentication business logic
 type AuthService interface {
-	Authenticate(req *dto.AuthenticateRequest) (*dto.AuthenticateResponse, error)
+	Authenticate(ctx context.Context, req *dto.AuthenticateRequest) (*dto.AuthenticateResponse, error)
 }
 
 type authService struct {
@@ -35,7 +36,7 @@ func NewAuthService(
 }
 
 // Authenticate verifies user credentials against radcheck entries
-func (s *authService) Authenticate(req *dto.AuthenticateRequest) (*dto.AuthenticateResponse, error) {
+func (s *authService) Authenticate(ctx context.Context, req *dto.AuthenticateRequest) (*dto.AuthenticateResponse, error) {
 	// Get all radcheck entries for the user
 	filter := &radcheckdto.RadcheckFilter{
 		Username: req.Username,
@@ -88,7 +89,7 @@ func (s *authService) Authenticate(req *dto.AuthenticateRequest) (*dto.Authentic
 	replyFilter := &radrepldto.RadreplyFilter{
 		Username: req.Username,
 	}
-	radeplies, _, err := s.radreplyRepo.GetAll(replyFilter)
+	radeplies, _, err := s.radreplyRepo.GetAll(ctx, replyFilter)
 	if err != nil {
 		radeplies = []radreplyentity.Radreply{}
 	}
