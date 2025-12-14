@@ -70,6 +70,22 @@ definitions:
     - username
     - value
     type: object
+  dto.CreateRadreplyRequest:
+    properties:
+      attribute:
+        type: string
+      op:
+        type: string
+      username:
+        type: string
+      value:
+        type: string
+    required:
+    - attribute
+    - op
+    - username
+    - value
+    type: object
   dto.CreateUserRequest:
     properties:
       email:
@@ -104,6 +120,21 @@ definitions:
       data:
         items:
           $ref: '#/definitions/dto.RadcheckResponse'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  dto.ListRadreplyResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.RadreplyResponse'
         type: array
       page:
         type: integer
@@ -188,6 +219,19 @@ definitions:
       value:
         type: string
     type: object
+  dto.RadreplyResponse:
+    properties:
+      attribute:
+        type: string
+      id:
+        type: integer
+      op:
+        type: string
+      username:
+        type: string
+      value:
+        type: string
+    type: object
   dto.UpdateNASRequest:
     properties:
       community:
@@ -247,6 +291,17 @@ definitions:
         type: string
       value:
         maxLength: 253
+        type: string
+    type: object
+  dto.UpdateRadreplyRequest:
+    properties:
+      attribute:
+        type: string
+      op:
+        type: string
+      username:
+        type: string
+      value:
         type: string
     type: object
   dto.UpdateUserPasswordRequest:
@@ -515,7 +570,193 @@ paths:
     get:
       consumes:
       - application/json
-      description: List RADIUS check entries with pagination and filtering
+      description: Get a list of radchecks with optional filtering and pagination
+      parameters:
+      - description: Filter by username
+        in: query
+        name: username
+        type: string
+      - description: Filter by attribute
+        in: query
+        name: attribute
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of radchecks
+          schema:
+            $ref: '#/definitions/dto.ListRadcheckResponse'
+        "400":
+          description: Invalid query parameters
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all radchecks
+      tags:
+      - radcheck
+    post:
+      consumes:
+      - application/json
+      description: Create a new RADIUS check entry for user authentication
+      parameters:
+      - description: Radcheck creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateRadcheckRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created radcheck
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new radcheck entry
+      tags:
+      - radcheck
+  /api/v1/radcheck/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a radcheck entry by ID
+      parameters:
+      - description: Radcheck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Radcheck deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid radcheck ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Radcheck not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a radcheck entry
+      tags:
+      - radcheck
+    get:
+      consumes:
+      - application/json
+      description: Get a single radcheck by its ID
+      parameters:
+      - description: Radcheck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Radcheck details
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid radcheck ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Radcheck not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a radcheck by ID
+      tags:
+      - radcheck
+    put:
+      consumes:
+      - application/json
+      description: Update a radcheck entry by ID
+      parameters:
+      - description: Radcheck ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Radcheck update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateRadcheckRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated radcheck
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Radcheck not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a radcheck entry
+      tags:
+      - radcheck
+  /api/v1/radreply:
+    get:
+      consumes:
+      - application/json
+      description: List RADIUS reply entries with pagination and filtering
       parameters:
       - default: 1
         description: Page number
@@ -541,62 +782,58 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.ListRadcheckResponse'
+            $ref: '#/definitions/dto.ListRadreplyResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
-      summary: List Radcheck entries
+      summary: List radreply entries
       tags:
-      - Radcheck
+      - Radreply
     post:
       consumes:
       - application/json
-      description: Create a new RADIUS check entry for user authentication
+      description: Create a new RADIUS reply entry for user replies
       parameters:
-      - description: Create Radcheck Request
+      - description: Create Radreply Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.CreateRadcheckRequest'
+          $ref: '#/definitions/dto.CreateRadreplyRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dto.RadcheckResponse'
+            $ref: '#/definitions/dto.RadreplyResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
-      summary: Create a new Radcheck entry
+      summary: Create a new radreply entry
       tags:
-      - Radcheck
-  /api/v1/radcheck/{id}:
+      - Radreply
+  /api/v1/radreply/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete a RADIUS check entry
+      description: Delete a RADIUS reply entry
       parameters:
-      - description: Radcheck ID
+      - description: Radreply ID
         in: path
         name: id
         required: true
@@ -609,24 +846,22 @@ paths:
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
-      summary: Delete Radcheck entry
+      summary: Delete radreply entry
       tags:
-      - Radcheck
+      - Radreply
     get:
       consumes:
       - application/json
-      description: Get a RADIUS check entry by ID
+      description: Get a RADIUS reply entry by ID
       parameters:
-      - description: Radcheck ID
+      - description: Radreply ID
         in: path
         name: id
         required: true
@@ -637,66 +872,61 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.RadcheckResponse'
+            $ref: '#/definitions/dto.RadreplyResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
-      summary: Get Radcheck by ID
+      summary: Get a radreply by ID
       tags:
-      - Radcheck
+      - Radreply
     put:
       consumes:
       - application/json
-      description: Update a RADIUS check entry
+      description: Update a RADIUS reply entry
       parameters:
-      - description: Radcheck ID
+      - description: Radreply ID
         in: path
         name: id
         required: true
         type: integer
-      - description: Update Radcheck Request
+      - description: Update Radreply Request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.UpdateRadcheckRequest'
+          $ref: '#/definitions/dto.UpdateRadreplyRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.RadcheckResponse'
+            $ref: '#/definitions/dto.RadreplyResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
-      summary: Update Radcheck entry
+      summary: Update radreply entry
       tags:
-      - Radcheck
+      - Radreply
   /health:
     get:
       consumes:

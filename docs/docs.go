@@ -318,7 +318,7 @@ const docTemplate = `{
         },
         "/api/v1/radcheck": {
             "get": {
-                "description": "List RADIUS check entries with pagination and filtering",
+                "description": "Get a list of radchecks with optional filtering and pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -326,9 +326,281 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Radcheck"
+                    "radcheck"
                 ],
-                "summary": "List Radcheck entries",
+                "summary": "List all radchecks",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by username",
+                        "name": "username",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by attribute",
+                        "name": "attribute",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of radchecks",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ListRadcheckResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new RADIUS check entry for user authentication",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "radcheck"
+                ],
+                "summary": "Create a new radcheck entry",
+                "parameters": [
+                    {
+                        "description": "Radcheck creation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateRadcheckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created radcheck",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/radcheck/{id}": {
+            "get": {
+                "description": "Get a single radcheck by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "radcheck"
+                ],
+                "summary": "Get a radcheck by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Radcheck ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Radcheck details",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid radcheck ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Radcheck not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a radcheck entry by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "radcheck"
+                ],
+                "summary": "Update a radcheck entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Radcheck ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Radcheck update request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateRadcheckRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated radcheck",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Radcheck not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a radcheck entry by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "radcheck"
+                ],
+                "summary": "Delete a radcheck entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Radcheck ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Radcheck deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid radcheck ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Radcheck not found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/radreply": {
+            "get": {
+                "description": "List RADIUS reply entries with pagination and filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Radreply"
+                ],
+                "summary": "List radreply entries",
                 "parameters": [
                     {
                         "type": "integer",
@@ -361,31 +633,27 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.ListRadcheckResponse"
+                            "$ref": "#/definitions/dto.ListRadreplyResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 }
             },
             "post": {
-                "description": "Create a new RADIUS check entry for user authentication",
+                "description": "Create a new RADIUS reply entry for user replies",
                 "consumes": [
                     "application/json"
                 ],
@@ -393,17 +661,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Radcheck"
+                    "Radreply"
                 ],
-                "summary": "Create a new Radcheck entry",
+                "summary": "Create a new radreply entry",
                 "parameters": [
                     {
-                        "description": "Create Radcheck Request",
+                        "description": "Create Radreply Request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateRadcheckRequest"
+                            "$ref": "#/definitions/dto.CreateRadreplyRequest"
                         }
                     }
                 ],
@@ -411,33 +679,29 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dto.RadcheckResponse"
+                            "$ref": "#/definitions/dto.RadreplyResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 }
             }
         },
-        "/api/v1/radcheck/{id}": {
+        "/api/v1/radreply/{id}": {
             "get": {
-                "description": "Get a RADIUS check entry by ID",
+                "description": "Get a RADIUS reply entry by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -445,13 +709,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Radcheck"
+                    "Radreply"
                 ],
-                "summary": "Get Radcheck by ID",
+                "summary": "Get a radreply by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Radcheck ID",
+                        "description": "Radreply ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -461,31 +725,27 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.RadcheckResponse"
+                            "$ref": "#/definitions/dto.RadreplyResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 }
             },
             "put": {
-                "description": "Update a RADIUS check entry",
+                "description": "Update a RADIUS reply entry",
                 "consumes": [
                     "application/json"
                 ],
@@ -493,24 +753,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Radcheck"
+                    "Radreply"
                 ],
-                "summary": "Update Radcheck entry",
+                "summary": "Update radreply entry",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Radcheck ID",
+                        "description": "Radreply ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Update Radcheck Request",
+                        "description": "Update Radreply Request",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UpdateRadcheckRequest"
+                            "$ref": "#/definitions/dto.UpdateRadreplyRequest"
                         }
                     }
                 ],
@@ -518,40 +778,34 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.RadcheckResponse"
+                            "$ref": "#/definitions/dto.RadreplyResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 }
             },
             "delete": {
-                "description": "Delete a RADIUS check entry",
+                "description": "Delete a RADIUS reply entry",
                 "consumes": [
                     "application/json"
                 ],
@@ -559,13 +813,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Radcheck"
+                    "Radreply"
                 ],
-                "summary": "Delete Radcheck entry",
+                "summary": "Delete radreply entry",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Radcheck ID",
+                        "description": "Radreply ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -579,18 +833,14 @@ const docTemplate = `{
                         "description": "Not Found",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 }
@@ -1416,6 +1666,29 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateRadreplyRequest": {
+            "type": "object",
+            "required": [
+                "attribute",
+                "op",
+                "username",
+                "value"
+            ],
+            "properties": {
+                "attribute": {
+                    "type": "string"
+                },
+                "op": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateUserRequest": {
             "type": "object",
             "required": [
@@ -1466,6 +1739,29 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.RadcheckResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ListRadreplyResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.RadreplyResponse"
                     }
                 },
                 "page": {
@@ -1595,6 +1891,26 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.RadreplyResponse": {
+            "type": "object",
+            "properties": {
+                "attribute": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "op": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.UpdateNASRequest": {
             "type": "object",
             "properties": {
@@ -1677,6 +1993,23 @@ const docTemplate = `{
                 "value": {
                     "type": "string",
                     "maxLength": 253
+                }
+            }
+        },
+        "dto.UpdateRadreplyRequest": {
+            "type": "object",
+            "properties": {
+                "attribute": {
+                    "type": "string"
+                },
+                "op": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
