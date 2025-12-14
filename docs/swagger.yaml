@@ -1,5 +1,37 @@
 basePath: /api/v1
 definitions:
+  dto.AttrValue:
+    properties:
+      attribute:
+        type: string
+      value:
+        type: string
+    type: object
+  dto.AuthenticateRequest:
+    properties:
+      password:
+        maxLength: 253
+        type: string
+      username:
+        maxLength: 64
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.AuthenticateResponse:
+    properties:
+      message:
+        type: string
+      replies:
+        items:
+          $ref: '#/definitions/dto.ReplyAttr'
+        type: array
+      success:
+        type: boolean
+      user:
+        $ref: '#/definitions/dto.UserAuth'
+    type: object
   dto.CreateNASRequest:
     properties:
       community:
@@ -232,6 +264,13 @@ definitions:
       value:
         type: string
     type: object
+  dto.ReplyAttr:
+    properties:
+      attribute:
+        type: string
+      value:
+        type: string
+    type: object
   dto.UpdateNASRequest:
     properties:
       community:
@@ -325,6 +364,15 @@ definitions:
     - email
     - name
     type: object
+  dto.UserAuth:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/dto.AttrValue'
+        type: array
+      username:
+        type: string
+    type: object
   dto.UserListResponse:
     properties:
       data:
@@ -372,6 +420,38 @@ info:
   title: Vibe DDD Golang API
   version: "1.0"
 paths:
+  /api/v1/auth/authenticate:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user by username and password using RADIUS attributes
+      parameters:
+      - description: Authenticate Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthenticateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthenticateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Authenticate user
+      tags:
+      - auth
   /api/v1/nas:
     get:
       consumes:

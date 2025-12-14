@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/novriyantoAli/freeradius-service/internal/application/auth"
 	"github.com/novriyantoAli/freeradius-service/internal/application/nas"
 	"github.com/novriyantoAli/freeradius-service/internal/application/payment"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radcheck"
@@ -17,6 +18,7 @@ var Module = fx.Options(
 	nas.Module,
 	radcheck.Module,
 	radreply.Module,
+	auth.Module,
 
 	// API api
 	fx.Provide(NewServer),

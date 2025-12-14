@@ -6,6 +6,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 
+	authHandler "github.com/novriyantoAli/freeradius-service/internal/application/auth/handler"
 	nasHandler "github.com/novriyantoAli/freeradius-service/internal/application/nas/handler"
 	paymentHandler "github.com/novriyantoAli/freeradius-service/internal/application/payment/handler"
 	radcheckHandler "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/handler"
@@ -22,6 +23,7 @@ type Server struct {
 	nasHandler      *nasHandler.NASHandler
 	radcheckHandler *radcheckHandler.RadcheckHandler
 	radreplyHandler *radreplyHandler.RadreplyHandler
+	authHandler     *authHandler.AuthHandler
 	logger          *zap.Logger
 }
 
@@ -31,6 +33,7 @@ func NewServer(
 	nasHandler *nasHandler.NASHandler,
 	radcheckHandler *radcheckHandler.RadcheckHandler,
 	radreplyHandler *radreplyHandler.RadreplyHandler,
+	authHandler *authHandler.AuthHandler,
 	logger *zap.Logger,
 ) *Server {
 	return &Server{
@@ -39,6 +42,7 @@ func NewServer(
 		nasHandler:      nasHandler,
 		radcheckHandler: radcheckHandler,
 		radreplyHandler: radreplyHandler,
+		authHandler:     authHandler,
 		logger:          logger,
 	}
 }
@@ -63,6 +67,7 @@ func (s *Server) SetupRoutes(router *gin.Engine) {
 		s.paymentHandler.RegisterRoutes(api)
 		s.radcheckHandler.RegisterRoutes(api)
 		s.radreplyHandler.RegisterRoutes(api)
+		s.authHandler.RegisterRoutes(api)
 		s.nasHandler.RegisterRoutes(router)
 	}
 }

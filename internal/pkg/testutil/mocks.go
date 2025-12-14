@@ -318,6 +318,63 @@ func (m *MockRadcheckRepository) Delete(id uint) error {
 	return args.Error(0)
 }
 
+// MockRadcheckRepositoryWithFn is a mock implementation of RadcheckRepository with function fields
+type MockRadcheckRepositoryWithFn struct {
+	CreateFn                    func(*radcheckEntity.Radcheck) error
+	GetByIDFn                   func(uint) (*radcheckEntity.Radcheck, error)
+	GetByUsernameAndAttributeFn func(string, string) (*radcheckEntity.Radcheck, error)
+	GetAllFn                    func(*radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error)
+	UpdateFn                    func(*radcheckEntity.Radcheck) error
+	DeleteFn                    func(uint) error
+}
+
+func NewMockRadcheckRepositoryWithFn() *MockRadcheckRepositoryWithFn {
+	return &MockRadcheckRepositoryWithFn{}
+}
+
+func (m *MockRadcheckRepositoryWithFn) Create(radcheck *radcheckEntity.Radcheck) error {
+	if m.CreateFn != nil {
+		return m.CreateFn(radcheck)
+	}
+	radcheck.ID = 1
+	return nil
+}
+
+func (m *MockRadcheckRepositoryWithFn) GetByID(id uint) (*radcheckEntity.Radcheck, error) {
+	if m.GetByIDFn != nil {
+		return m.GetByIDFn(id)
+	}
+	return CreateRadcheckFixture(), nil
+}
+
+func (m *MockRadcheckRepositoryWithFn) GetByUsernameAndAttribute(username, attribute string) (*radcheckEntity.Radcheck, error) {
+	if m.GetByUsernameAndAttributeFn != nil {
+		return m.GetByUsernameAndAttributeFn(username, attribute)
+	}
+	return CreateRadcheckFixture(), nil
+}
+
+func (m *MockRadcheckRepositoryWithFn) GetAll(filter *radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+	if m.GetAllFn != nil {
+		return m.GetAllFn(filter)
+	}
+	return []radcheckEntity.Radcheck{*CreateRadcheckFixture()}, 1, nil
+}
+
+func (m *MockRadcheckRepositoryWithFn) Update(radcheck *radcheckEntity.Radcheck) error {
+	if m.UpdateFn != nil {
+		return m.UpdateFn(radcheck)
+	}
+	return nil
+}
+
+func (m *MockRadcheckRepositoryWithFn) Delete(id uint) error {
+	if m.DeleteFn != nil {
+		return m.DeleteFn(id)
+	}
+	return nil
+}
+
 // MockRadcheckService is a mock implementation of RadcheckService
 type MockRadcheckService struct {
 	mock.Mock
