@@ -335,6 +335,24 @@ DELETE /payments/:id             # Delete payment
 GET    /users/:user_id/payments  # Get user payments
 ```
 
+### RADIUS Check Management
+```http
+POST   /radcheck                 # Create RADIUS check attribute
+GET    /radcheck                 # List RADIUS check attributes (with pagination & filtering)
+GET    /radcheck/:id             # Get RADIUS check attribute by ID
+PUT    /radcheck/:id             # Update RADIUS check attribute
+DELETE /radcheck/:id             # Delete RADIUS check attribute
+```
+
+### RADIUS Reply Management
+```http
+POST   /radreply                 # Create RADIUS reply attribute
+GET    /radreply                 # List RADIUS reply attributes (with pagination & filtering)
+GET    /radreply/:id             # Get RADIUS reply attribute by ID
+PUT    /radreply/:id             # Update RADIUS reply attribute
+DELETE /radreply/:id             # Delete RADIUS reply attribute
+```
+
 ### API Features
 
 - **OpenAPI/Swagger Documentation**: Interactive API docs with try-it-out functionality
@@ -367,6 +385,141 @@ curl -X POST http://localhost:8080/api/v1/payments \
     "description": "Test payment",
     "user_id": 1
   }'
+```
+
+#### Create RADIUS Check Attribute
+```bash
+curl -X POST http://localhost:8080/api/v1/radcheck \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "john",
+    "attribute": "User-Password",
+    "op": ":=",
+    "value": "secretpassword"
+  }'
+```
+
+#### Create RADIUS Reply Attribute
+```bash
+curl -X POST http://localhost:8080/api/v1/radreply \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "john",
+    "attribute": "Reply-Message",
+    "op": "=",
+    "value": "Welcome to the network"
+  }'
+```
+
+#### List Users
+```bash
+curl -X GET "http://localhost:8080/api/v1/users?page=1&limit=10" \
+  -H "Content-Type: application/json"
+```
+
+#### List Payments
+```bash
+curl -X GET "http://localhost:8080/api/v1/payments?page=1&limit=10" \
+  -H "Content-Type: application/json"
+```
+
+#### List RADIUS Check Attributes
+```bash
+curl -X GET "http://localhost:8080/api/v1/radcheck?page=1&limit=10" \
+  -H "Content-Type: application/json"
+```
+
+#### List RADIUS Reply Attributes
+```bash
+curl -X GET "http://localhost:8080/api/v1/radreply?page=1&limit=10" \
+  -H "Content-Type: application/json"
+```
+
+#### Get User by ID
+```bash
+curl -X GET http://localhost:8080/api/v1/users/1 \
+  -H "Content-Type: application/json"
+```
+
+#### Get Payment by ID
+```bash
+curl -X GET http://localhost:8080/api/v1/payments/1 \
+  -H "Content-Type: application/json"
+```
+
+#### Get RADIUS Check Attribute by ID
+```bash
+curl -X GET http://localhost:8080/api/v1/radcheck/1 \
+  -H "Content-Type: application/json"
+```
+
+#### Get RADIUS Reply Attribute by ID
+```bash
+curl -X GET http://localhost:8080/api/v1/radreply/1 \
+  -H "Content-Type: application/json"
+```
+
+#### Update User
+```bash
+curl -X PUT http://localhost:8080/api/v1/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Jane Doe",
+    "email": "jane@example.com"
+  }'
+```
+
+#### Update Payment
+```bash
+curl -X PUT http://localhost:8080/api/v1/payments/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 150.00,
+    "currency": "USD",
+    "description": "Updated payment"
+  }'
+```
+
+#### Update RADIUS Check Attribute
+```bash
+curl -X PUT http://localhost:8080/api/v1/radcheck/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "attribute": "User-Password",
+    "op": ":=",
+    "value": "newpassword"
+  }'
+```
+
+#### Update RADIUS Reply Attribute
+```bash
+curl -X PUT http://localhost:8080/api/v1/radreply/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "attribute": "Reply-Message",
+    "op": "=",
+    "value": "Updated welcome message"
+  }'
+```
+
+#### Delete User
+```bash
+curl -X DELETE http://localhost:8080/api/v1/users/1
+```
+
+#### Delete Payment
+```bash
+curl -X DELETE http://localhost:8080/api/v1/payments/1
+```
+
+#### Delete RADIUS Check Attribute
+```bash
+curl -X DELETE http://localhost:8080/api/v1/radcheck/1
+```
+
+#### Delete RADIUS Reply Attribute
+```bash
+curl -X DELETE http://localhost:8080/api/v1/radreply/1
 ```
 
 ## 🚀 Server Architecture
