@@ -102,9 +102,9 @@ func (h *AuthGrpcHandler) toProtoCreateAuthResponse(resp *dto.CreateAuthResponse
 	}
 
 	return &auth.CreateAuthResponse{
-		Username:          resp.Username,
-		Password:          resp.Password,
-		Attributes:        attributes,
-		ReplyAttributes:   replyAttrs,
+		Username:        resp.Username,
+		Password:        resp.Password,
+		Attributes:      attributes,
+		ReplyAttributes: replyAttrs,
 	}
 }
