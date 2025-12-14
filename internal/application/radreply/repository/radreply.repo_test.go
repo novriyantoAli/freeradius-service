@@ -18,7 +18,7 @@ func TestRadreplyRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	radreply := &entity.Radreply{
 		Username:  "john",
@@ -38,7 +38,7 @@ func TestRadreplyRepository_GetByID(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	radreply := testutil.CreateRadreplyFixture()
 	db.Create(radreply)
@@ -55,7 +55,7 @@ func TestRadreplyRepository_GetByID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	result, err := repo.GetByID(context.Background(), 9999)
 
@@ -69,7 +69,7 @@ func TestRadreplyRepository_GetByUsernameAndAttribute(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	radreply := testutil.CreateRadreplyFixture()
 	db.Create(radreply)
@@ -86,7 +86,7 @@ func TestRadreplyRepository_GetByUsernameAndAttribute_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	result, err := repo.GetByUsernameAndAttribute(context.Background(), "nonexistent", "nonexistent")
 
@@ -100,7 +100,7 @@ func TestRadreplyRepository_GetAll(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	radreply1 := &entity.Radreply{
 		Username:  "user1",
@@ -134,7 +134,7 @@ func TestRadreplyRepository_GetAll_WithFilter(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	radreply1 := testutil.CreateRadreplyFixture()
 	radreply2 := testutil.CreateRadreplyFixture()
@@ -160,7 +160,7 @@ func TestRadreplyRepository_GetAll_Pagination(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	for i := 0; i < 15; i++ {
 		radreply := &entity.Radreply{
@@ -189,7 +189,7 @@ func TestRadreplyRepository_GetAll_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	filter := &dto.RadreplyFilter{
 		Page:     1,
@@ -208,7 +208,7 @@ func TestRadreplyRepository_Update(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	radreply := testutil.CreateRadreplyFixture()
 	db.Create(radreply)
@@ -228,7 +228,7 @@ func TestRadreplyRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer testutil.CleanDB(db)
 
-	repo := NewRadreplyRepository(db)
+	repo := NewRadreplyRepository(db, testutil.NewSilentLogger())
 
 	radreply := testutil.CreateRadreplyFixture()
 	db.Create(radreply)

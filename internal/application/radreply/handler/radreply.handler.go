@@ -7,15 +7,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/service"
-	"gorm.io/gorm"
+	"go.uber.org/zap"
 )
 
 type RadreplyHandler struct {
 	service service.RadreplyService
+	logger  *zap.Logger
 }
 
-func NewRadreplyHandler(service service.RadreplyService) *RadreplyHandler {
-	return &RadreplyHandler{service: service}
+func NewRadreplyHandler(service service.RadreplyService, logger *zap.Logger) *RadreplyHandler {
+	return &RadreplyHandler{
+		service: service,
+		logger:  logger,
+	}
 }
 
 func (h *RadreplyHandler) RegisterRoutes(r *gin.RouterGroup) {
@@ -44,12 +48,14 @@ func (h *RadreplyHandler) CreateRadreply(ctx *gin.Context) {
 	var req dto.CreateRadreplyRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("Invalid request body", zap.Error(err))
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	result, err := h.service.CreateRadreply(ctx.Request.Context(), &req)
 	if err != nil {
+		h.logger.Error("Failed to create radreply", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
@@ -77,7 +83,8 @@ func (h *RadreplyHandler) GetRadreply(ctx *gin.Context) {
 
 	result, err := h.service.GetRadreplyByID(ctx.Request.Context(), uint(id))
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		h.logger.Error("Failed to get radreply", zap.Error(err))
+		if err.Error() == "radreply not found" {
 			ctx.JSON(http.StatusNotFound, gin.H{"message": "radreply not found"})
 			return
 		}
@@ -106,12 +113,14 @@ func (h *RadreplyHandler) ListRadreply(ctx *gin.Context) {
 	var filter dto.RadreplyFilter
 
 	if err := ctx.ShouldBindQuery(&filter); err != nil {
+		h.logger.Error("Invalid query parameters", zap.Error(err))
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	result, err := h.service.ListRadreply(ctx.Request.Context(), &filter)
 	if err != nil {
+		h.logger.Error("Failed to list radreply", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
@@ -142,13 +151,15 @@ func (h *RadreplyHandler) UpdateRadreply(ctx *gin.Context) {
 	var req dto.UpdateRadreplyRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		h.logger.Error("Invalid request body", zap.Error(err))
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
 	result, err := h.service.UpdateRadreply(ctx.Request.Context(), uint(id), &req)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		h.logger.Error("Failed to update radreply", zap.Error(err))
+		if err.Error() == "radreply not found" {
 			ctx.JSON(http.StatusNotFound, gin.H{"message": "radreply not found"})
 			return
 		}
@@ -178,6 +189,7 @@ func (h *RadreplyHandler) DeleteRadreply(ctx *gin.Context) {
 	}
 
 	if err := h.service.DeleteRadreply(ctx.Request.Context(), uint(id)); err != nil {
+		h.logger.Error("Failed to delete radreply", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}

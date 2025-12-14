@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,7 +19,7 @@ import (
 func TestRadreplyHandler_CreateRadreply(t *testing.T) {
 	t.Run("should create radreply successfully", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		req := testutil.CreateRadreplyRequestFixture()
 		body, _ := json.Marshal(req)
@@ -37,7 +38,7 @@ func TestRadreplyHandler_CreateRadreply(t *testing.T) {
 
 	t.Run("should return bad request for invalid json", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -56,7 +57,7 @@ func TestRadreplyHandler_CreateRadreply(t *testing.T) {
 		service.CreateRadreplyFn = func(ctx context.Context, req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error) {
 			return nil, gorm.ErrInvalidDB
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		req := testutil.CreateRadreplyRequestFixture()
 		body, _ := json.Marshal(req)
@@ -86,7 +87,7 @@ func TestRadreplyHandler_GetRadreply(t *testing.T) {
 				Value:     "Welcome",
 			}, nil
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -102,9 +103,9 @@ func TestRadreplyHandler_GetRadreply(t *testing.T) {
 	t.Run("should return not found when radreply not found", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
 		service.GetRadreplyByIDFn = func(ctx context.Context, id uint) (*dto.RadreplyResponse, error) {
-			return nil, gorm.ErrRecordNotFound
+			return nil, errors.New("radreply not found")
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -119,7 +120,7 @@ func TestRadreplyHandler_GetRadreply(t *testing.T) {
 
 	t.Run("should return bad request for invalid id", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -153,7 +154,7 @@ func TestRadreplyHandler_ListRadreply(t *testing.T) {
 				TotalPage: 1,
 			}, nil
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -168,7 +169,7 @@ func TestRadreplyHandler_ListRadreply(t *testing.T) {
 
 	t.Run("should return bad request for invalid query", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -186,7 +187,7 @@ func TestRadreplyHandler_ListRadreply(t *testing.T) {
 		service.ListRadreplyFn = func(ctx context.Context, filter *dto.RadreplyFilter) (*dto.ListRadreplyResponse, error) {
 			return nil, gorm.ErrInvalidDB
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -212,7 +213,7 @@ func TestRadreplyHandler_UpdateRadreply(t *testing.T) {
 				Value:     "Updated",
 			}, nil
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		req := testutil.CreateUpdateRadreplyRequestFixture()
 		body, _ := json.Marshal(req)
@@ -232,9 +233,9 @@ func TestRadreplyHandler_UpdateRadreply(t *testing.T) {
 	t.Run("should return not found when radreply not found", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
 		service.UpdateRadreplyFn = func(ctx context.Context, id uint, req *dto.UpdateRadreplyRequest) (*dto.RadreplyResponse, error) {
-			return nil, gorm.ErrRecordNotFound
+			return nil, errors.New("radreply not found")
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		req := testutil.CreateUpdateRadreplyRequestFixture()
 		body, _ := json.Marshal(req)
@@ -253,7 +254,7 @@ func TestRadreplyHandler_UpdateRadreply(t *testing.T) {
 
 	t.Run("should return bad request for invalid id", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		req := testutil.CreateUpdateRadreplyRequestFixture()
 		body, _ := json.Marshal(req)
@@ -272,7 +273,7 @@ func TestRadreplyHandler_UpdateRadreply(t *testing.T) {
 
 	t.Run("should return bad request for invalid json", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -293,7 +294,7 @@ func TestRadreplyHandler_DeleteRadreply(t *testing.T) {
 		service.DeleteRadreplyFn = func(ctx context.Context, id uint) error {
 			return nil
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -308,7 +309,7 @@ func TestRadreplyHandler_DeleteRadreply(t *testing.T) {
 
 	t.Run("should return bad request for invalid id", func(t *testing.T) {
 		service := testutil.NewMockRadreplyService()
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()
@@ -326,7 +327,7 @@ func TestRadreplyHandler_DeleteRadreply(t *testing.T) {
 		service.DeleteRadreplyFn = func(ctx context.Context, id uint) error {
 			return gorm.ErrInvalidDB
 		}
-		handler := NewRadreplyHandler(service)
+		handler := NewRadreplyHandler(service, testutil.NewSilentLogger())
 
 		w := httptest.NewRecorder()
 		r := gin.New()

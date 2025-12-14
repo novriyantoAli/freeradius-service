@@ -7,6 +7,8 @@ import (
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/repository"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type RadreplyService interface {
@@ -20,10 +22,14 @@ type RadreplyService interface {
 
 type radreplyService struct {
 	repository repository.RadreplyRepository
+	logger     *zap.Logger
 }
 
-func NewRadreplyService(repository repository.RadreplyRepository) RadreplyService {
-	return &radreplyService{repository: repository}
+func NewRadreplyService(repository repository.RadreplyRepository, logger *zap.Logger) RadreplyService {
+	return &radreplyService{
+		repository: repository,
+		logger:     logger,
+	}
 }
 
 func (s *radreplyService) CreateRadreply(ctx context.Context, req *dto.CreateRadreplyRequest) (*dto.RadreplyResponse, error) {
@@ -40,6 +46,7 @@ func (s *radreplyService) CreateRadreply(ctx context.Context, req *dto.CreateRad
 	}
 
 	if err := s.repository.Create(ctx, radreply); err != nil {
+		s.logger.Error("Failed to create radreply", zap.Error(err))
 		return nil, err
 	}
 
@@ -49,6 +56,9 @@ func (s *radreplyService) CreateRadreply(ctx context.Context, req *dto.CreateRad
 func (s *radreplyService) GetRadreplyByID(ctx context.Context, id uint) (*dto.RadreplyResponse, error) {
 	radreply, err := s.repository.GetByID(ctx, id)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("radreply not found")
+		}
 		return nil, err
 	}
 
@@ -58,6 +68,9 @@ func (s *radreplyService) GetRadreplyByID(ctx context.Context, id uint) (*dto.Ra
 func (s *radreplyService) GetRadreplyByUsernameAndAttribute(ctx context.Context, username, attribute string) (*dto.RadreplyResponse, error) {
 	radreply, err := s.repository.GetByUsernameAndAttribute(ctx, username, attribute)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("radreply not found")
+		}
 		return nil, err
 	}
 
@@ -121,6 +134,7 @@ func (s *radreplyService) UpdateRadreply(ctx context.Context, id uint, req *dto.
 	}
 
 	if err := s.repository.Update(ctx, radreply); err != nil {
+		s.logger.Error("Failed to update radreply", zap.Error(err))
 		return nil, err
 	}
 
@@ -128,7 +142,11 @@ func (s *radreplyService) UpdateRadreply(ctx context.Context, id uint, req *dto.
 }
 
 func (s *radreplyService) DeleteRadreply(ctx context.Context, id uint) error {
-	return s.repository.Delete(ctx, id)
+	if err := s.repository.Delete(ctx, id); err != nil {
+		s.logger.Error("Failed to delete radreply", zap.Error(err))
+		return err
+	}
+	return nil
 }
 
 func (s *radreplyService) entityToResponse(radreply *entity.Radreply) *dto.RadreplyResponse {

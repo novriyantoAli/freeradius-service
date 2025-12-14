@@ -14,7 +14,7 @@ import (
 func TestRadreplyService_CreateRadreply(t *testing.T) {
 	t.Run("should create radreply successfully", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		req := testutil.CreateRadreplyRequestFixture()
 
@@ -31,7 +31,7 @@ func TestRadreplyService_CreateRadreply(t *testing.T) {
 		repo.CreateFn = func(ctx context.Context, radreply *entity.Radreply) error {
 			return gorm.ErrInvalidDB
 		}
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		req := testutil.CreateRadreplyRequestFixture()
 
@@ -43,7 +43,7 @@ func TestRadreplyService_CreateRadreply(t *testing.T) {
 
 	t.Run("should fail on validation error - empty username", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		req := &dto.CreateRadreplyRequest{
 			Username:  "",
@@ -61,7 +61,7 @@ func TestRadreplyService_CreateRadreply(t *testing.T) {
 
 	t.Run("should fail on validation error - username too long", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		req := &dto.CreateRadreplyRequest{
 			Username:  "a" + string(make([]byte, 65)),
@@ -78,7 +78,7 @@ func TestRadreplyService_CreateRadreply(t *testing.T) {
 
 	t.Run("should fail on validation error - empty value", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		req := &dto.CreateRadreplyRequest{
 			Username:  "john",
@@ -98,7 +98,7 @@ func TestRadreplyService_CreateRadreply(t *testing.T) {
 func TestRadreplyService_GetRadreplyByID(t *testing.T) {
 	t.Run("should get radreply by id successfully", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		fixture := testutil.CreateRadreplyFixture()
 		repo.GetByIDFn = func(ctx context.Context, id uint) (*entity.Radreply, error) {
@@ -117,7 +117,7 @@ func TestRadreplyService_GetRadreplyByID(t *testing.T) {
 		repo.GetByIDFn = func(ctx context.Context, id uint) (*entity.Radreply, error) {
 			return nil, gorm.ErrRecordNotFound
 		}
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		result, err := service.GetRadreplyByID(context.Background(), 9999)
 
@@ -129,7 +129,7 @@ func TestRadreplyService_GetRadreplyByID(t *testing.T) {
 func TestRadreplyService_GetRadreplyByUsernameAndAttribute(t *testing.T) {
 	t.Run("should get radreply by username and attribute successfully", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		fixture := testutil.CreateRadreplyFixture()
 		repo.GetByUsernameAndAttributeFn = func(ctx context.Context, username, attribute string) (*entity.Radreply, error) {
@@ -148,7 +148,7 @@ func TestRadreplyService_GetRadreplyByUsernameAndAttribute(t *testing.T) {
 		repo.GetByUsernameAndAttributeFn = func(ctx context.Context, username, attribute string) (*entity.Radreply, error) {
 			return nil, gorm.ErrRecordNotFound
 		}
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		result, err := service.GetRadreplyByUsernameAndAttribute(context.Background(), "nonexistent", "nonexistent")
 
@@ -160,7 +160,7 @@ func TestRadreplyService_GetRadreplyByUsernameAndAttribute(t *testing.T) {
 func TestRadreplyService_ListRadreply(t *testing.T) {
 	t.Run("should list radreply with pagination", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		fixtures := []entity.Radreply{
 			*testutil.CreateRadreplyFixture(),
@@ -181,7 +181,7 @@ func TestRadreplyService_ListRadreply(t *testing.T) {
 
 	t.Run("should apply default pagination when not provided", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		repo.GetAllFn = func(ctx context.Context, filter *dto.RadreplyFilter) ([]entity.Radreply, int64, error) {
 			assert.Equal(t, 1, filter.Page)
@@ -197,7 +197,7 @@ func TestRadreplyService_ListRadreply(t *testing.T) {
 
 	t.Run("should cap page size at 100", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		repo.GetAllFn = func(ctx context.Context, filter *dto.RadreplyFilter) ([]entity.Radreply, int64, error) {
 			assert.Equal(t, 100, filter.PageSize)
@@ -215,7 +215,7 @@ func TestRadreplyService_ListRadreply(t *testing.T) {
 		repo.GetAllFn = func(ctx context.Context, filter *dto.RadreplyFilter) ([]entity.Radreply, int64, error) {
 			return nil, 0, gorm.ErrInvalidDB
 		}
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		result, err := service.ListRadreply(context.Background(), &dto.RadreplyFilter{})
 
@@ -227,7 +227,7 @@ func TestRadreplyService_ListRadreply(t *testing.T) {
 func TestRadreplyService_UpdateRadreply(t *testing.T) {
 	t.Run("should update radreply successfully", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		fixture := testutil.CreateRadreplyFixture()
 		repo.GetByIDFn = func(ctx context.Context, id uint) (*entity.Radreply, error) {
@@ -249,7 +249,7 @@ func TestRadreplyService_UpdateRadreply(t *testing.T) {
 		repo.GetByIDFn = func(ctx context.Context, id uint) (*entity.Radreply, error) {
 			return nil, gorm.ErrRecordNotFound
 		}
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		req := testutil.CreateUpdateRadreplyRequestFixture()
 		result, err := service.UpdateRadreply(context.Background(), 9999, req)
@@ -260,7 +260,7 @@ func TestRadreplyService_UpdateRadreply(t *testing.T) {
 
 	t.Run("should fail when repository update fails", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		fixture := testutil.CreateRadreplyFixture()
 		repo.GetByIDFn = func(ctx context.Context, id uint) (*entity.Radreply, error) {
@@ -281,7 +281,7 @@ func TestRadreplyService_UpdateRadreply(t *testing.T) {
 func TestRadreplyService_DeleteRadreply(t *testing.T) {
 	t.Run("should delete radreply successfully", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		repo.DeleteFn = func(ctx context.Context, id uint) error {
 			return nil
@@ -297,7 +297,7 @@ func TestRadreplyService_DeleteRadreply(t *testing.T) {
 		repo.DeleteFn = func(ctx context.Context, id uint) error {
 			return gorm.ErrInvalidDB
 		}
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		err := service.DeleteRadreply(context.Background(), 1)
 
@@ -308,7 +308,7 @@ func TestRadreplyService_DeleteRadreply(t *testing.T) {
 func TestRadreplyService_entityToResponse(t *testing.T) {
 	t.Run("should convert entity to response correctly", func(t *testing.T) {
 		repo := testutil.NewMockRadreplyRepository()
-		service := NewRadreplyService(repo)
+		service := NewRadreplyService(repo, testutil.NewSilentLogger())
 
 		entity := &entity.Radreply{
 			ID:        1,
