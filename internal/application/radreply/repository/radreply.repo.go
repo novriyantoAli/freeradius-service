@@ -5,6 +5,7 @@ import (
 
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
+	"github.com/novriyantoAli/freeradius-service/internal/pkg/database"
 	"gorm.io/gorm"
 )
 
@@ -26,12 +27,14 @@ func NewRadreplyRepository(db *gorm.DB) RadreplyRepository {
 }
 
 func (r *radreplyRepository) Create(ctx context.Context, radreply *entity.Radreply) error {
-	return r.db.WithContext(ctx).Create(radreply).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	return db.Create(radreply).Error
 }
 
 func (r *radreplyRepository) GetByID(ctx context.Context, id uint) (*entity.Radreply, error) {
 	var radreply entity.Radreply
-	err := r.db.WithContext(ctx).Where("id = ?", id).First(&radreply).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	err := db.Where("id = ?", id).First(&radreply).Error
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +43,8 @@ func (r *radreplyRepository) GetByID(ctx context.Context, id uint) (*entity.Radr
 
 func (r *radreplyRepository) GetByUsernameAndAttribute(ctx context.Context, username, attribute string) (*entity.Radreply, error) {
 	var radreply entity.Radreply
-	err := r.db.WithContext(ctx).Where("username = ? AND attribute = ?", username, attribute).First(&radreply).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	err := db.Where("username = ? AND attribute = ?", username, attribute).First(&radreply).Error
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +55,7 @@ func (r *radreplyRepository) GetAll(ctx context.Context, filter *dto.RadreplyFil
 	var radreply []entity.Radreply
 	var total int64
 
-	query := r.db.WithContext(ctx)
+	query := database.GetDB(ctx, r.db).(*gorm.DB)
 
 	if filter.Username != "" {
 		query = query.Where("username = ?", filter.Username)
@@ -76,9 +80,11 @@ func (r *radreplyRepository) GetAll(ctx context.Context, filter *dto.RadreplyFil
 }
 
 func (r *radreplyRepository) Update(ctx context.Context, radreply *entity.Radreply) error {
-	return r.db.WithContext(ctx).Save(radreply).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	return db.Save(radreply).Error
 }
 
 func (r *radreplyRepository) Delete(ctx context.Context, id uint) error {
-	return r.db.WithContext(ctx).Delete(&entity.Radreply{}, id).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	return db.Delete(&entity.Radreply{}, id).Error
 }
