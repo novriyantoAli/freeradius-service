@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,7 +27,7 @@ func TestRadcheckRepository_Create(t *testing.T) {
 		radcheck.ID = 0
 
 		// When
-		err := repo.Create(radcheck)
+		err := repo.Create(context.Background(), radcheck)
 
 		// Then
 		require.NoError(t, err)
@@ -52,7 +53,7 @@ func TestRadcheckRepository_Create(t *testing.T) {
 		}
 
 		// When
-		err := repo.Create(radcheck)
+		err := repo.Create(context.Background(), radcheck)
 
 		// Then
 		require.NoError(t, err)
@@ -79,10 +80,10 @@ func TestRadcheckRepository_GetByID(t *testing.T) {
 		// Given
 		fixture := testutil.CreateRadcheckFixture()
 		fixture.ID = 0
-		_ = repo.Create(fixture)
+		_ = repo.Create(context.Background(), fixture)
 
 		// When
-		radcheck, err := repo.GetByID(fixture.ID)
+		radcheck, err := repo.GetByID(context.Background(), fixture.ID)
 
 		// Then
 		require.NoError(t, err)
@@ -93,7 +94,7 @@ func TestRadcheckRepository_GetByID(t *testing.T) {
 
 	t.Run("should return error when radcheck not found", func(t *testing.T) {
 		// When
-		radcheck, err := repo.GetByID(9999)
+		radcheck, err := repo.GetByID(context.Background(), 9999)
 
 		// Then
 		assert.Error(t, err)
@@ -114,10 +115,10 @@ func TestRadcheckRepository_GetByUsernameAndAttribute(t *testing.T) {
 		// Given
 		fixture := testutil.CreateRadcheckFixture()
 		fixture.ID = 0
-		_ = repo.Create(fixture)
+		_ = repo.Create(context.Background(), fixture)
 
 		// When
-		radcheck, err := repo.GetByUsernameAndAttribute(fixture.Username, fixture.Attribute)
+		radcheck, err := repo.GetByUsernameAndAttribute(context.Background(), fixture.Username, fixture.Attribute)
 
 		// Then
 		require.NoError(t, err)
@@ -129,7 +130,7 @@ func TestRadcheckRepository_GetByUsernameAndAttribute(t *testing.T) {
 
 	t.Run("should return error when radcheck not found by username and attribute", func(t *testing.T) {
 		// When
-		radcheck, err := repo.GetByUsernameAndAttribute("nonexistent", "Attribute")
+		radcheck, err := repo.GetByUsernameAndAttribute(context.Background(), "nonexistent", "Attribute")
 
 		// Then
 		assert.Error(t, err)
@@ -155,7 +156,7 @@ func TestRadcheckRepository_GetAll(t *testing.T) {
 				Op:        ":=",
 				Value:     "password" + string(rune(i)),
 			}
-			_ = repo.Create(radcheck)
+			_ = repo.Create(context.Background(), radcheck)
 		}
 
 		filter := &dto.RadcheckFilter{
@@ -164,7 +165,7 @@ func TestRadcheckRepository_GetAll(t *testing.T) {
 		}
 
 		// When
-		radchecks, total, err := repo.GetAll(filter)
+		radchecks, total, err := repo.GetAll(context.Background(), filter)
 
 		// Then
 		require.NoError(t, err)
@@ -189,8 +190,8 @@ func TestRadcheckRepository_GetAll(t *testing.T) {
 			Op:        ":=",
 			Value:     "pass456",
 		}
-		_ = repo.Create(radcheck1)
-		_ = repo.Create(radcheck2)
+		_ = repo.Create(context.Background(), radcheck1)
+		_ = repo.Create(context.Background(), radcheck2)
 
 		filter := &dto.RadcheckFilter{
 			Username: "alice",
@@ -199,7 +200,7 @@ func TestRadcheckRepository_GetAll(t *testing.T) {
 		}
 
 		// When
-		radchecks, total, err := repo.GetAll(filter)
+		radchecks, total, err := repo.GetAll(context.Background(), filter)
 
 		// Then
 		require.NoError(t, err)
@@ -224,8 +225,8 @@ func TestRadcheckRepository_GetAll(t *testing.T) {
 			Op:        ":=",
 			Value:     "pass456",
 		}
-		_ = repo.Create(radcheck1)
-		_ = repo.Create(radcheck2)
+		_ = repo.Create(context.Background(), radcheck1)
+		_ = repo.Create(context.Background(), radcheck2)
 
 		filter := &dto.RadcheckFilter{
 			Attribute: "User-Password",
@@ -234,7 +235,7 @@ func TestRadcheckRepository_GetAll(t *testing.T) {
 		}
 
 		// When
-		radchecks, total, err := repo.GetAll(filter)
+		radchecks, total, err := repo.GetAll(context.Background(), filter)
 
 		// Then
 		require.NoError(t, err)
@@ -253,7 +254,7 @@ func TestRadcheckRepository_GetAll(t *testing.T) {
 		}
 
 		// When
-		radchecks, total, err := repo.GetAll(filter)
+		radchecks, total, err := repo.GetAll(context.Background(), filter)
 
 		// Then
 		require.NoError(t, err)
@@ -274,14 +275,14 @@ func TestRadcheckRepository_Update(t *testing.T) {
 		// Given
 		fixture := testutil.CreateRadcheckFixture()
 		fixture.ID = 0
-		_ = repo.Create(fixture)
+		_ = repo.Create(context.Background(), fixture)
 
 		// Update values
 		fixture.Value = "updatedpassword"
 		fixture.Op = "+="
 
 		// When
-		err := repo.Update(fixture)
+		err := repo.Update(context.Background(), fixture)
 
 		// Then
 		require.NoError(t, err)
@@ -305,7 +306,7 @@ func TestRadcheckRepository_Update(t *testing.T) {
 		}
 
 		// When
-		err := repo.Update(radcheck)
+		err := repo.Update(context.Background(), radcheck)
 
 		// Then
 		// GORM doesn't error on update of non-existent record, so we just verify no error
@@ -325,11 +326,11 @@ func TestRadcheckRepository_Delete(t *testing.T) {
 		// Given
 		fixture := testutil.CreateRadcheckFixture()
 		fixture.ID = 0
-		_ = repo.Create(fixture)
+		_ = repo.Create(context.Background(), fixture)
 		createdID := fixture.ID
 
 		// When
-		err := repo.Delete(createdID)
+		err := repo.Delete(context.Background(), createdID)
 
 		// Then
 		require.NoError(t, err)
@@ -343,7 +344,7 @@ func TestRadcheckRepository_Delete(t *testing.T) {
 
 	t.Run("should handle delete of non-existent radcheck", func(t *testing.T) {
 		// When
-		err := repo.Delete(9999)
+		err := repo.Delete(context.Background(), 9999)
 
 		// Then
 		// GORM doesn't error on delete of non-existent record, so we just verify no error

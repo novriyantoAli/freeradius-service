@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -23,13 +24,13 @@ func TestRadcheckService_CreateRadcheck(t *testing.T) {
 		req := testutil.CreateRadcheckRequestFixture()
 
 		// Mock expectations
-		mockRepo.On("Create", mock.AnythingOfType("*entity.Radcheck")).Return(nil).Run(func(args mock.Arguments) {
-			radcheck := args.Get(0).(*entity.Radcheck)
+		mockRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Radcheck")).Return(nil).Run(func(args mock.Arguments) {
+			radcheck := args.Get(1).(*entity.Radcheck)
 			radcheck.ID = 1
 		})
 
 		// When
-		response, err := service.CreateRadcheck(req)
+		response, err := service.CreateRadcheck(context.Background(), req)
 
 		// Then
 		assert.NoError(t, err)
@@ -51,10 +52,10 @@ func TestRadcheckService_CreateRadcheck(t *testing.T) {
 		req := testutil.CreateRadcheckRequestFixture()
 
 		// Mock expectations
-		mockRepo.On("Create", mock.AnythingOfType("*entity.Radcheck")).Return(errors.New("create failed"))
+		mockRepo.On("Create", mock.Anything, mock.AnythingOfType("*entity.Radcheck")).Return(errors.New("create failed"))
 
 		// When
-		response, err := service.CreateRadcheck(req)
+		response, err := service.CreateRadcheck(context.Background(), req)
 
 		// Then
 		assert.Error(t, err)
@@ -76,10 +77,10 @@ func TestRadcheckService_GetRadcheckByID(t *testing.T) {
 		radcheck.ID = radcheckID
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(radcheck, nil)
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(radcheck, nil)
 
 		// When
-		response, err := service.GetRadcheckByID(radcheckID)
+		response, err := service.GetRadcheckByID(context.Background(), radcheckID)
 
 		// Then
 		assert.NoError(t, err)
@@ -101,10 +102,10 @@ func TestRadcheckService_GetRadcheckByID(t *testing.T) {
 		radcheckID := uint(999)
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(nil, gorm.ErrRecordNotFound)
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(nil, gorm.ErrRecordNotFound)
 
 		// When
-		response, err := service.GetRadcheckByID(radcheckID)
+		response, err := service.GetRadcheckByID(context.Background(), radcheckID)
 
 		// Then
 		assert.Error(t, err)
@@ -122,10 +123,10 @@ func TestRadcheckService_GetRadcheckByID(t *testing.T) {
 		radcheckID := uint(1)
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(nil, errors.New("database error"))
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(nil, errors.New("database error"))
 
 		// When
-		response, err := service.GetRadcheckByID(radcheckID)
+		response, err := service.GetRadcheckByID(context.Background(), radcheckID)
 
 		// Then
 		assert.Error(t, err)
@@ -149,10 +150,10 @@ func TestRadcheckService_GetRadcheckByUsernameAndAttribute(t *testing.T) {
 		radcheck.Attribute = attribute
 
 		// Mock expectations
-		mockRepo.On("GetByUsernameAndAttribute", username, attribute).Return(radcheck, nil)
+		mockRepo.On("GetByUsernameAndAttribute", mock.Anything, username, attribute).Return(radcheck, nil)
 
 		// When
-		response, err := service.GetRadcheckByUsernameAndAttribute(username, attribute)
+		response, err := service.GetRadcheckByUsernameAndAttribute(context.Background(), username, attribute)
 
 		// Then
 		assert.NoError(t, err)
@@ -174,10 +175,10 @@ func TestRadcheckService_GetRadcheckByUsernameAndAttribute(t *testing.T) {
 		attribute := "User-Password"
 
 		// Mock expectations
-		mockRepo.On("GetByUsernameAndAttribute", username, attribute).Return(nil, gorm.ErrRecordNotFound)
+		mockRepo.On("GetByUsernameAndAttribute", mock.Anything, username, attribute).Return(nil, gorm.ErrRecordNotFound)
 
 		// When
-		response, err := service.GetRadcheckByUsernameAndAttribute(username, attribute)
+		response, err := service.GetRadcheckByUsernameAndAttribute(context.Background(), username, attribute)
 
 		// Then
 		assert.Error(t, err)
@@ -208,10 +209,10 @@ func TestRadcheckService_ListRadcheck(t *testing.T) {
 		radchecks[1].Username = "user2"
 
 		// Mock expectations
-		mockRepo.On("GetAll", filter).Return(radchecks, int64(2), nil)
+		mockRepo.On("GetAll", mock.Anything, filter).Return(radchecks, int64(2), nil)
 
 		// When
-		response, err := service.ListRadcheck(filter)
+		response, err := service.ListRadcheck(context.Background(), filter)
 
 		// Then
 		assert.NoError(t, err)
@@ -240,10 +241,10 @@ func TestRadcheckService_ListRadcheck(t *testing.T) {
 		}
 
 		// Mock expectations
-		mockRepo.On("GetAll", expectedFilter).Return([]entity.Radcheck{}, int64(0), nil)
+		mockRepo.On("GetAll", mock.Anything, expectedFilter).Return([]entity.Radcheck{}, int64(0), nil)
 
 		// When
-		response, err := service.ListRadcheck(filter)
+		response, err := service.ListRadcheck(context.Background(), filter)
 
 		// Then
 		assert.NoError(t, err)
@@ -270,10 +271,10 @@ func TestRadcheckService_ListRadcheck(t *testing.T) {
 		}
 
 		// Mock expectations
-		mockRepo.On("GetAll", expectedFilter).Return([]entity.Radcheck{}, int64(0), nil)
+		mockRepo.On("GetAll", mock.Anything, expectedFilter).Return([]entity.Radcheck{}, int64(0), nil)
 
 		// When
-		response, err := service.ListRadcheck(filter)
+		response, err := service.ListRadcheck(context.Background(), filter)
 
 		// Then
 		assert.NoError(t, err)
@@ -294,10 +295,10 @@ func TestRadcheckService_ListRadcheck(t *testing.T) {
 		}
 
 		// Mock expectations
-		mockRepo.On("GetAll", filter).Return(nil, int64(0), errors.New("database error"))
+		mockRepo.On("GetAll", mock.Anything, filter).Return(nil, int64(0), errors.New("database error"))
 
 		// When
-		response, err := service.ListRadcheck(filter)
+		response, err := service.ListRadcheck(context.Background(), filter)
 
 		// Then
 		assert.Error(t, err)
@@ -323,11 +324,11 @@ func TestRadcheckService_UpdateRadcheck(t *testing.T) {
 		req.Value = "newvalue"
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(existingRadcheck, nil)
-		mockRepo.On("Update", mock.AnythingOfType("*entity.Radcheck")).Return(nil)
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(existingRadcheck, nil)
+		mockRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Radcheck")).Return(nil)
 
 		// When
-		response, err := service.UpdateRadcheck(radcheckID, req)
+		response, err := service.UpdateRadcheck(context.Background(), radcheckID, req)
 
 		// Then
 		assert.NoError(t, err)
@@ -347,10 +348,10 @@ func TestRadcheckService_UpdateRadcheck(t *testing.T) {
 		req := testutil.CreateUpdateRadcheckRequestFixture()
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(nil, gorm.ErrRecordNotFound)
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(nil, gorm.ErrRecordNotFound)
 
 		// When
-		response, err := service.UpdateRadcheck(radcheckID, req)
+		response, err := service.UpdateRadcheck(context.Background(), radcheckID, req)
 
 		// Then
 		assert.Error(t, err)
@@ -374,11 +375,11 @@ func TestRadcheckService_UpdateRadcheck(t *testing.T) {
 		}
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(existingRadcheck, nil)
-		mockRepo.On("Update", mock.AnythingOfType("*entity.Radcheck")).Return(nil)
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(existingRadcheck, nil)
+		mockRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Radcheck")).Return(nil)
 
 		// When
-		response, err := service.UpdateRadcheck(radcheckID, req)
+		response, err := service.UpdateRadcheck(context.Background(), radcheckID, req)
 
 		// Then
 		assert.NoError(t, err)
@@ -404,11 +405,11 @@ func TestRadcheckService_UpdateRadcheck(t *testing.T) {
 		req := testutil.CreateUpdateRadcheckRequestFixture()
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(existingRadcheck, nil)
-		mockRepo.On("Update", mock.AnythingOfType("*entity.Radcheck")).Return(errors.New("update failed"))
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(existingRadcheck, nil)
+		mockRepo.On("Update", mock.Anything, mock.AnythingOfType("*entity.Radcheck")).Return(errors.New("update failed"))
 
 		// When
-		response, err := service.UpdateRadcheck(radcheckID, req)
+		response, err := service.UpdateRadcheck(context.Background(), radcheckID, req)
 
 		// Then
 		assert.Error(t, err)
@@ -430,11 +431,11 @@ func TestRadcheckService_DeleteRadcheck(t *testing.T) {
 		radcheck.ID = radcheckID
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(radcheck, nil)
-		mockRepo.On("Delete", radcheckID).Return(nil)
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(radcheck, nil)
+		mockRepo.On("Delete", mock.Anything, radcheckID).Return(nil)
 
 		// When
-		err := service.DeleteRadcheck(radcheckID)
+		err := service.DeleteRadcheck(context.Background(), radcheckID)
 
 		// Then
 		assert.NoError(t, err)
@@ -450,10 +451,10 @@ func TestRadcheckService_DeleteRadcheck(t *testing.T) {
 		radcheckID := uint(999)
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(nil, gorm.ErrRecordNotFound)
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(nil, gorm.ErrRecordNotFound)
 
 		// When
-		err := service.DeleteRadcheck(radcheckID)
+		err := service.DeleteRadcheck(context.Background(), radcheckID)
 
 		// Then
 		assert.Error(t, err)
@@ -472,11 +473,11 @@ func TestRadcheckService_DeleteRadcheck(t *testing.T) {
 		radcheck.ID = radcheckID
 
 		// Mock expectations
-		mockRepo.On("GetByID", radcheckID).Return(radcheck, nil)
-		mockRepo.On("Delete", radcheckID).Return(errors.New("delete failed"))
+		mockRepo.On("GetByID", mock.Anything, radcheckID).Return(radcheck, nil)
+		mockRepo.On("Delete", mock.Anything, radcheckID).Return(errors.New("delete failed"))
 
 		// When
-		err := service.DeleteRadcheck(radcheckID)
+		err := service.DeleteRadcheck(context.Background(), radcheckID)
 
 		// Then
 		assert.Error(t, err)

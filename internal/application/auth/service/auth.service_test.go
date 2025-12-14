@@ -16,7 +16,7 @@ import (
 
 func TestAuthService_Authenticate_Success(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 
@@ -43,7 +43,7 @@ func TestAuthService_Authenticate_Success(t *testing.T) {
 
 func TestAuthService_Authenticate_InvalidPassword(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 
@@ -69,7 +69,7 @@ func TestAuthService_Authenticate_InvalidPassword(t *testing.T) {
 
 func TestAuthService_Authenticate_UserNotFound(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{}, 0, nil
 	}
 
@@ -95,7 +95,7 @@ func TestAuthService_Authenticate_UserNotFound(t *testing.T) {
 
 func TestAuthService_Authenticate_MultipleAttributes(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{
 			*testutil.CreateRadcheckFixture(),
 			{
@@ -130,7 +130,7 @@ func TestAuthService_Authenticate_MultipleAttributes(t *testing.T) {
 
 func TestAuthService_Authenticate_WithReplyAttributes(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 

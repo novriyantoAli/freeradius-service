@@ -22,7 +22,7 @@ import (
 
 func TestAuthHandler_Authenticate_Success(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 
@@ -63,7 +63,7 @@ func TestAuthHandler_Authenticate_Success(t *testing.T) {
 
 func TestAuthHandler_Authenticate_MissingUsername(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{}, 0, nil
 	}
 
@@ -93,7 +93,7 @@ func TestAuthHandler_Authenticate_MissingUsername(t *testing.T) {
 
 func TestAuthHandler_Authenticate_MissingPassword(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{}, 0, nil
 	}
 
@@ -123,7 +123,7 @@ func TestAuthHandler_Authenticate_MissingPassword(t *testing.T) {
 
 func TestAuthHandler_Authenticate_InvalidCredentials(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 
@@ -161,7 +161,7 @@ func TestAuthHandler_Authenticate_InvalidCredentials(t *testing.T) {
 
 func TestAuthHandler_Authenticate_UserNotFound(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
 		return []radcheck.Radcheck{}, 0, nil
 	}
 

@@ -1,20 +1,22 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
-
+	"github.com/novriyantoAli/freeradius-service/internal/pkg/database"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type RadcheckRepository interface {
-	Create(radcheck *entity.Radcheck) error
-	GetByID(id uint) (*entity.Radcheck, error)
-	GetByUsernameAndAttribute(username, attribute string) (*entity.Radcheck, error)
-	GetAll(filter *dto.RadcheckFilter) ([]entity.Radcheck, int64, error)
-	Update(radcheck *entity.Radcheck) error
-	Delete(id uint) error
+	Create(ctx context.Context, radcheck *entity.Radcheck) error
+	GetByID(ctx context.Context, id uint) (*entity.Radcheck, error)
+	GetByUsernameAndAttribute(ctx context.Context, username, attribute string) (*entity.Radcheck, error)
+	GetAll(ctx context.Context, filter *dto.RadcheckFilter) ([]entity.Radcheck, int64, error)
+	Update(ctx context.Context, radcheck *entity.Radcheck) error
+	Delete(ctx context.Context, id uint) error
 }
 
 type radcheckRepository struct {
@@ -29,17 +31,19 @@ func NewRadcheckRepository(db *gorm.DB, logger *zap.Logger) RadcheckRepository {
 	}
 }
 
-func (r *radcheckRepository) Create(radcheck *entity.Radcheck) error {
+func (r *radcheckRepository) Create(ctx context.Context, radcheck *entity.Radcheck) error {
 	if radcheck.Op == "" {
 		radcheck.Op = ":="
 	}
 	r.logger.Info("Creating radcheck", zap.String("username", radcheck.Username))
-	return r.db.Create(radcheck).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	return db.Create(radcheck).Error
 }
 
-func (r *radcheckRepository) GetByID(id uint) (*entity.Radcheck, error) {
+func (r *radcheckRepository) GetByID(ctx context.Context, id uint) (*entity.Radcheck, error) {
 	var radcheck entity.Radcheck
-	err := r.db.First(&radcheck, id).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	err := db.First(&radcheck, id).Error
 	if err != nil {
 		r.logger.Error("Failed to get radcheck by ID", zap.Uint("id", id), zap.Error(err))
 		return nil, err
@@ -47,9 +51,10 @@ func (r *radcheckRepository) GetByID(id uint) (*entity.Radcheck, error) {
 	return &radcheck, nil
 }
 
-func (r *radcheckRepository) GetByUsernameAndAttribute(username, attribute string) (*entity.Radcheck, error) {
+func (r *radcheckRepository) GetByUsernameAndAttribute(ctx context.Context, username, attribute string) (*entity.Radcheck, error) {
 	var radcheck entity.Radcheck
-	err := r.db.Where("username = ? AND attribute = ?", username, attribute).First(&radcheck).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	err := db.Where("username = ? AND attribute = ?", username, attribute).First(&radcheck).Error
 	if err != nil {
 		r.logger.Error("Failed to get radcheck", zap.String("username", username), zap.String("attribute", attribute), zap.Error(err))
 		return nil, err
@@ -57,11 +62,11 @@ func (r *radcheckRepository) GetByUsernameAndAttribute(username, attribute strin
 	return &radcheck, nil
 }
 
-func (r *radcheckRepository) GetAll(filter *dto.RadcheckFilter) ([]entity.Radcheck, int64, error) {
+func (r *radcheckRepository) GetAll(ctx context.Context, filter *dto.RadcheckFilter) ([]entity.Radcheck, int64, error) {
 	var radchecks []entity.Radcheck
 	var totalCount int64
 
-	query := r.db.Model(&entity.Radcheck{})
+	query := database.GetDB(ctx, r.db).(*gorm.DB).Model(&entity.Radcheck{})
 
 	if filter.Username != "" {
 		query = query.Where("username LIKE ?", "%"+filter.Username+"%")
@@ -70,7 +75,10 @@ func (r *radcheckRepository) GetAll(filter *dto.RadcheckFilter) ([]entity.Radche
 		query = query.Where("attribute LIKE ?", "%"+filter.Attribute+"%")
 	}
 
-	query.Count(&totalCount)
+	if err := query.Count(&totalCount).Error; err != nil {
+		r.logger.Error("Failed to count radchecks", zap.Error(err))
+		return nil, 0, err
+	}
 
 	if filter.Page > 0 && filter.PageSize > 0 {
 		offset := (filter.Page - 1) * filter.PageSize
@@ -86,12 +94,14 @@ func (r *radcheckRepository) GetAll(filter *dto.RadcheckFilter) ([]entity.Radche
 	return radchecks, totalCount, nil
 }
 
-func (r *radcheckRepository) Update(radcheck *entity.Radcheck) error {
+func (r *radcheckRepository) Update(ctx context.Context, radcheck *entity.Radcheck) error {
 	r.logger.Info("Updating radcheck", zap.Uint("id", radcheck.ID))
-	return r.db.Save(radcheck).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	return db.Save(radcheck).Error
 }
 
-func (r *radcheckRepository) Delete(id uint) error {
+func (r *radcheckRepository) Delete(ctx context.Context, id uint) error {
 	r.logger.Info("Deleting radcheck", zap.Uint("id", id))
-	return r.db.Delete(&entity.Radcheck{}, id).Error
+	db := database.GetDB(ctx, r.db).(*gorm.DB)
+	return db.Delete(&entity.Radcheck{}, id).Error
 }

@@ -38,7 +38,7 @@ func TestRadcheckHandler_CreateRadcheck(t *testing.T) {
 			Value:     req.Value,
 		}
 
-		mockService.On("CreateRadcheck", mock.AnythingOfType("*dto.CreateRadcheckRequest")).Return(response, nil)
+		mockService.On("CreateRadcheck", mock.Anything, mock.AnythingOfType("*dto.CreateRadcheckRequest")).Return(response, nil)
 
 		// Prepare request
 		reqBody, _ := json.Marshal(req)
@@ -84,7 +84,7 @@ func TestRadcheckHandler_CreateRadcheck(t *testing.T) {
 		handler, mockService := setupRadcheckHandler()
 
 		req := testutil.CreateRadcheckRequestFixture()
-		mockService.On("CreateRadcheck", mock.AnythingOfType("*dto.CreateRadcheckRequest")).Return(nil, errors.New("database error"))
+		mockService.On("CreateRadcheck", mock.Anything, mock.AnythingOfType("*dto.CreateRadcheckRequest")).Return(nil, errors.New("database error"))
 
 		reqBody, _ := json.Marshal(req)
 		w := httptest.NewRecorder()
@@ -115,7 +115,7 @@ func TestRadcheckHandler_GetRadcheck(t *testing.T) {
 			Value:     "testpassword",
 		}
 
-		mockService.On("GetRadcheckByID", radcheckID).Return(response, nil)
+		mockService.On("GetRadcheckByID", mock.Anything, radcheckID).Return(response, nil)
 
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
@@ -163,7 +163,7 @@ func TestRadcheckHandler_GetRadcheck(t *testing.T) {
 		handler, mockService := setupRadcheckHandler()
 
 		radcheckID := uint(999)
-		mockService.On("GetRadcheckByID", radcheckID).Return(nil, errors.New("radcheck not found"))
+		mockService.On("GetRadcheckByID", mock.Anything, radcheckID).Return(nil, errors.New("radcheck not found"))
 
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
@@ -197,7 +197,7 @@ func TestRadcheckHandler_ListRadcheck(t *testing.T) {
 			TotalPage: 1,
 		}
 
-		mockService.On("ListRadcheck", mock.AnythingOfType("*dto.RadcheckFilter")).Return(response, nil)
+		mockService.On("ListRadcheck", mock.Anything, mock.AnythingOfType("*dto.RadcheckFilter")).Return(response, nil)
 
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
@@ -236,7 +236,7 @@ func TestRadcheckHandler_ListRadcheck(t *testing.T) {
 		// Setup
 		handler, mockService := setupRadcheckHandler()
 
-		mockService.On("ListRadcheck", mock.AnythingOfType("*dto.RadcheckFilter")).Return(nil, errors.New("database error"))
+		mockService.On("ListRadcheck", mock.Anything, mock.AnythingOfType("*dto.RadcheckFilter")).Return(nil, errors.New("database error"))
 
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
@@ -266,7 +266,7 @@ func TestRadcheckHandler_UpdateRadcheck(t *testing.T) {
 			Value:     req.Value,
 		}
 
-		mockService.On("UpdateRadcheck", radcheckID, mock.AnythingOfType("*dto.UpdateRadcheckRequest")).Return(response, nil)
+		mockService.On("UpdateRadcheck", mock.Anything, radcheckID, mock.AnythingOfType("*dto.UpdateRadcheckRequest")).Return(response, nil)
 
 		reqBody, _ := json.Marshal(req)
 		w := httptest.NewRecorder()
@@ -339,7 +339,7 @@ func TestRadcheckHandler_UpdateRadcheck(t *testing.T) {
 
 		radcheckID := uint(999)
 		req := testutil.CreateUpdateRadcheckRequestFixture()
-		mockService.On("UpdateRadcheck", radcheckID, mock.AnythingOfType("*dto.UpdateRadcheckRequest")).Return(nil, errors.New("radcheck not found"))
+		mockService.On("UpdateRadcheck", mock.Anything, radcheckID, mock.AnythingOfType("*dto.UpdateRadcheckRequest")).Return(nil, errors.New("radcheck not found"))
 
 		reqBody, _ := json.Marshal(req)
 		w := httptest.NewRecorder()
@@ -364,7 +364,7 @@ func TestRadcheckHandler_UpdateRadcheck(t *testing.T) {
 
 		radcheckID := uint(1)
 		req := testutil.CreateUpdateRadcheckRequestFixture()
-		mockService.On("UpdateRadcheck", radcheckID, mock.AnythingOfType("*dto.UpdateRadcheckRequest")).Return(nil, errors.New("database error"))
+		mockService.On("UpdateRadcheck", mock.Anything, radcheckID, mock.AnythingOfType("*dto.UpdateRadcheckRequest")).Return(nil, errors.New("database error"))
 
 		reqBody, _ := json.Marshal(req)
 		w := httptest.NewRecorder()
@@ -390,7 +390,7 @@ func TestRadcheckHandler_DeleteRadcheck(t *testing.T) {
 		handler, mockService := setupRadcheckHandler()
 
 		radcheckID := uint(1)
-		mockService.On("DeleteRadcheck", radcheckID).Return(nil)
+		mockService.On("DeleteRadcheck", mock.Anything, radcheckID).Return(nil)
 
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
@@ -436,7 +436,7 @@ func TestRadcheckHandler_DeleteRadcheck(t *testing.T) {
 		handler, mockService := setupRadcheckHandler()
 
 		radcheckID := uint(999)
-		mockService.On("DeleteRadcheck", radcheckID).Return(errors.New("radcheck not found"))
+		mockService.On("DeleteRadcheck", mock.Anything, radcheckID).Return(errors.New("radcheck not found"))
 
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)
@@ -458,7 +458,7 @@ func TestRadcheckHandler_DeleteRadcheck(t *testing.T) {
 		handler, mockService := setupRadcheckHandler()
 
 		radcheckID := uint(1)
-		mockService.On("DeleteRadcheck", radcheckID).Return(errors.New("database error"))
+		mockService.On("DeleteRadcheck", mock.Anything, radcheckID).Return(errors.New("database error"))
 
 		w := httptest.NewRecorder()
 		ctx, _ := gin.CreateTestContext(w)

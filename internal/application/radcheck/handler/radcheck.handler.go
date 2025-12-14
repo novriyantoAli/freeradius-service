@@ -41,7 +41,7 @@ func (h *RadcheckHandler) CreateRadcheck(ctx *gin.Context) {
 		return
 	}
 
-	radcheck, err := h.service.CreateRadcheck(&req)
+	radcheck, err := h.service.CreateRadcheck(ctx.Request.Context(), &req)
 	if err != nil {
 		h.logger.Error("Failed to create radcheck", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create radcheck"})
@@ -70,7 +70,7 @@ func (h *RadcheckHandler) GetRadcheck(ctx *gin.Context) {
 		return
 	}
 
-	radcheck, err := h.service.GetRadcheckByID(uint(id))
+	radcheck, err := h.service.GetRadcheckByID(ctx.Request.Context(), uint(id))
 	if err != nil {
 		h.logger.Error("Failed to get radcheck", zap.Error(err))
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Radcheck not found"})
@@ -102,7 +102,7 @@ func (h *RadcheckHandler) ListRadcheck(ctx *gin.Context) {
 		return
 	}
 
-	radchecks, err := h.service.ListRadcheck(&filter)
+	radchecks, err := h.service.ListRadcheck(ctx.Request.Context(), &filter)
 	if err != nil {
 		h.logger.Error("Failed to list radcheck", zap.Error(err))
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list radcheck"})
@@ -140,7 +140,7 @@ func (h *RadcheckHandler) UpdateRadcheck(ctx *gin.Context) {
 		return
 	}
 
-	radcheck, err := h.service.UpdateRadcheck(uint(id), &req)
+	radcheck, err := h.service.UpdateRadcheck(ctx.Request.Context(), uint(id), &req)
 	if err != nil {
 		h.logger.Error("Failed to update radcheck", zap.Error(err))
 		if err.Error() == "radcheck not found" {
@@ -174,7 +174,7 @@ func (h *RadcheckHandler) DeleteRadcheck(ctx *gin.Context) {
 		return
 	}
 
-	err = h.service.DeleteRadcheck(uint(id))
+	err = h.service.DeleteRadcheck(ctx.Request.Context(), uint(id))
 	if err != nil {
 		h.logger.Error("Failed to delete radcheck", zap.Error(err))
 		if err.Error() == "radcheck not found" {

@@ -41,7 +41,7 @@ func (s *authService) Authenticate(ctx context.Context, req *dto.AuthenticateReq
 	filter := &radcheckdto.RadcheckFilter{
 		Username: req.Username,
 	}
-	radchecks, _, err := s.radcheckRepo.GetAll(filter)
+	radchecks, _, err := s.radcheckRepo.GetAll(ctx, filter)
 	if err != nil {
 		return &dto.AuthenticateResponse{
 			Success: false,

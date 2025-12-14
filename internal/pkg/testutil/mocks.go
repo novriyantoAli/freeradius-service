@@ -275,29 +275,29 @@ type MockRadcheckRepository struct {
 	mock.Mock
 }
 
-func (m *MockRadcheckRepository) Create(radcheck *radcheckEntity.Radcheck) error {
-	args := m.Called(radcheck)
+func (m *MockRadcheckRepository) Create(ctx context.Context, radcheck *radcheckEntity.Radcheck) error {
+	args := m.Called(ctx, radcheck)
 	return args.Error(0)
 }
 
-func (m *MockRadcheckRepository) GetByID(id uint) (*radcheckEntity.Radcheck, error) {
-	args := m.Called(id)
+func (m *MockRadcheckRepository) GetByID(ctx context.Context, id uint) (*radcheckEntity.Radcheck, error) {
+	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*radcheckEntity.Radcheck), args.Error(1)
 }
 
-func (m *MockRadcheckRepository) GetByUsernameAndAttribute(username, attribute string) (*radcheckEntity.Radcheck, error) {
-	args := m.Called(username, attribute)
+func (m *MockRadcheckRepository) GetByUsernameAndAttribute(ctx context.Context, username, attribute string) (*radcheckEntity.Radcheck, error) {
+	args := m.Called(ctx, username, attribute)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*radcheckEntity.Radcheck), args.Error(1)
 }
 
-func (m *MockRadcheckRepository) GetAll(filter *radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
-	args := m.Called(filter)
+func (m *MockRadcheckRepository) GetAll(ctx context.Context, filter *radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+	args := m.Called(ctx, filter)
 	var radchecks []radcheckEntity.Radcheck
 	if args.Get(0) != nil {
 		radchecks = args.Get(0).([]radcheckEntity.Radcheck)
@@ -310,69 +310,69 @@ func (m *MockRadcheckRepository) GetAll(filter *radcheckDto.RadcheckFilter) ([]r
 	return radchecks, count, args.Error(2)
 }
 
-func (m *MockRadcheckRepository) Update(radcheck *radcheckEntity.Radcheck) error {
-	args := m.Called(radcheck)
+func (m *MockRadcheckRepository) Update(ctx context.Context, radcheck *radcheckEntity.Radcheck) error {
+	args := m.Called(ctx, radcheck)
 	return args.Error(0)
 }
 
-func (m *MockRadcheckRepository) Delete(id uint) error {
-	args := m.Called(id)
+func (m *MockRadcheckRepository) Delete(ctx context.Context, id uint) error {
+	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
 // MockRadcheckRepositoryWithFn is a mock implementation of RadcheckRepository with function fields
 type MockRadcheckRepositoryWithFn struct {
-	CreateFn                    func(*radcheckEntity.Radcheck) error
-	GetByIDFn                   func(uint) (*radcheckEntity.Radcheck, error)
-	GetByUsernameAndAttributeFn func(string, string) (*radcheckEntity.Radcheck, error)
-	GetAllFn                    func(*radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error)
-	UpdateFn                    func(*radcheckEntity.Radcheck) error
-	DeleteFn                    func(uint) error
+	CreateFn                    func(context.Context, *radcheckEntity.Radcheck) error
+	GetByIDFn                   func(context.Context, uint) (*radcheckEntity.Radcheck, error)
+	GetByUsernameAndAttributeFn func(context.Context, string, string) (*radcheckEntity.Radcheck, error)
+	GetAllFn                    func(context.Context, *radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error)
+	UpdateFn                    func(context.Context, *radcheckEntity.Radcheck) error
+	DeleteFn                    func(context.Context, uint) error
 }
 
 func NewMockRadcheckRepositoryWithFn() *MockRadcheckRepositoryWithFn {
 	return &MockRadcheckRepositoryWithFn{}
 }
 
-func (m *MockRadcheckRepositoryWithFn) Create(radcheck *radcheckEntity.Radcheck) error {
+func (m *MockRadcheckRepositoryWithFn) Create(ctx context.Context, radcheck *radcheckEntity.Radcheck) error {
 	if m.CreateFn != nil {
-		return m.CreateFn(radcheck)
+		return m.CreateFn(ctx, radcheck)
 	}
 	radcheck.ID = 1
 	return nil
 }
 
-func (m *MockRadcheckRepositoryWithFn) GetByID(id uint) (*radcheckEntity.Radcheck, error) {
+func (m *MockRadcheckRepositoryWithFn) GetByID(ctx context.Context, id uint) (*radcheckEntity.Radcheck, error) {
 	if m.GetByIDFn != nil {
-		return m.GetByIDFn(id)
+		return m.GetByIDFn(ctx, id)
 	}
 	return CreateRadcheckFixture(), nil
 }
 
-func (m *MockRadcheckRepositoryWithFn) GetByUsernameAndAttribute(username, attribute string) (*radcheckEntity.Radcheck, error) {
+func (m *MockRadcheckRepositoryWithFn) GetByUsernameAndAttribute(ctx context.Context, username, attribute string) (*radcheckEntity.Radcheck, error) {
 	if m.GetByUsernameAndAttributeFn != nil {
-		return m.GetByUsernameAndAttributeFn(username, attribute)
+		return m.GetByUsernameAndAttributeFn(ctx, username, attribute)
 	}
 	return CreateRadcheckFixture(), nil
 }
 
-func (m *MockRadcheckRepositoryWithFn) GetAll(filter *radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+func (m *MockRadcheckRepositoryWithFn) GetAll(ctx context.Context, filter *radcheckDto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
 	if m.GetAllFn != nil {
-		return m.GetAllFn(filter)
+		return m.GetAllFn(ctx, filter)
 	}
 	return []radcheckEntity.Radcheck{*CreateRadcheckFixture()}, 1, nil
 }
 
-func (m *MockRadcheckRepositoryWithFn) Update(radcheck *radcheckEntity.Radcheck) error {
+func (m *MockRadcheckRepositoryWithFn) Update(ctx context.Context, radcheck *radcheckEntity.Radcheck) error {
 	if m.UpdateFn != nil {
-		return m.UpdateFn(radcheck)
+		return m.UpdateFn(ctx, radcheck)
 	}
 	return nil
 }
 
-func (m *MockRadcheckRepositoryWithFn) Delete(id uint) error {
+func (m *MockRadcheckRepositoryWithFn) Delete(ctx context.Context, id uint) error {
 	if m.DeleteFn != nil {
-		return m.DeleteFn(id)
+		return m.DeleteFn(ctx, id)
 	}
 	return nil
 }
@@ -382,48 +382,48 @@ type MockRadcheckService struct {
 	mock.Mock
 }
 
-func (m *MockRadcheckService) CreateRadcheck(req *radcheckDto.CreateRadcheckRequest) (*radcheckDto.RadcheckResponse, error) {
-	args := m.Called(req)
+func (m *MockRadcheckService) CreateRadcheck(ctx context.Context, req *radcheckDto.CreateRadcheckRequest) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
 }
 
-func (m *MockRadcheckService) GetRadcheckByID(id uint) (*radcheckDto.RadcheckResponse, error) {
-	args := m.Called(id)
+func (m *MockRadcheckService) GetRadcheckByID(ctx context.Context, id uint) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(ctx, id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
 }
 
-func (m *MockRadcheckService) GetRadcheckByUsernameAndAttribute(username, attribute string) (*radcheckDto.RadcheckResponse, error) {
-	args := m.Called(username, attribute)
+func (m *MockRadcheckService) GetRadcheckByUsernameAndAttribute(ctx context.Context, username, attribute string) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(ctx, username, attribute)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
 }
 
-func (m *MockRadcheckService) ListRadcheck(filter *radcheckDto.RadcheckFilter) (*radcheckDto.ListRadcheckResponse, error) {
-	args := m.Called(filter)
+func (m *MockRadcheckService) ListRadcheck(ctx context.Context, filter *radcheckDto.RadcheckFilter) (*radcheckDto.ListRadcheckResponse, error) {
+	args := m.Called(ctx, filter)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*radcheckDto.ListRadcheckResponse), args.Error(1)
 }
 
-func (m *MockRadcheckService) UpdateRadcheck(id uint, req *radcheckDto.UpdateRadcheckRequest) (*radcheckDto.RadcheckResponse, error) {
-	args := m.Called(id, req)
+func (m *MockRadcheckService) UpdateRadcheck(ctx context.Context, id uint, req *radcheckDto.UpdateRadcheckRequest) (*radcheckDto.RadcheckResponse, error) {
+	args := m.Called(ctx, id, req)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
 	return args.Get(0).(*radcheckDto.RadcheckResponse), args.Error(1)
 }
 
-func (m *MockRadcheckService) DeleteRadcheck(id uint) error {
-	args := m.Called(id)
+func (m *MockRadcheckService) DeleteRadcheck(ctx context.Context, id uint) error {
+	args := m.Called(ctx, id)
 	return args.Error(0)
 }
 
