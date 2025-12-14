@@ -580,3 +580,15 @@ func (m *MockRadreplyService) DeleteRadreply(ctx context.Context, id uint) error
 	}
 	return nil
 }
+
+// MockTransactionManager is a mock implementation of TransactionManager
+type MockTransactionManager struct {
+	WithinTransactionFn func(ctx context.Context, fn func(ctx context.Context) error) error
+}
+
+func (m *MockTransactionManager) WithinTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
+	if m.WithinTransactionFn != nil {
+		return m.WithinTransactionFn(ctx, fn)
+	}
+	return fn(ctx)
+}

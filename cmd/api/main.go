@@ -44,6 +44,7 @@ func main() {
 			config.NewConfig,
 			logger.NewLogger,
 			database.NewDatabase,
+			database.NewTransactionManager,
 		),
 		api.Module,
 		fx.Invoke(Run),

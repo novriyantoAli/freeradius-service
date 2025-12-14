@@ -20,6 +20,7 @@ func (h *AuthHandler) RegisterRoutes(r *gin.RouterGroup) {
 	authRoutes := r.Group("/auth")
 	{
 		authRoutes.POST("/authenticate", h.Authenticate)
+		authRoutes.POST("", h.CreateAuth)
 	}
 }
 
@@ -50,3 +51,32 @@ func (h *AuthHandler) Authenticate(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"data": result})
 }
+
+// CreateAuth godoc
+// @Summary Create authentication credentials
+// @Description Create authentication credentials with radcheck and radreply entries in a transaction
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateAuthRequest true "Create Auth Request"
+// @Success 201 {object} dto.CreateAuthResponse
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /api/v1/auth [post]
+func (h *AuthHandler) CreateAuth(ctx *gin.Context) {
+	var req dto.CreateAuthRequest
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	result, err := h.service.CreateAuth(ctx.Request.Context(), &req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"data": result})
+}
+

@@ -7,25 +7,27 @@ import (
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/dto"
 	"github.com/novriyantoAli/freeradius-service/internal/application/auth/service"
 	radcheckdto "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/dto"
-	radcheck "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
+	radcheckEntity "github.com/novriyantoAli/freeradius-service/internal/application/radcheck/entity"
 	radrepldto "github.com/novriyantoAli/freeradius-service/internal/application/radreply/dto"
-	radreply "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
+	radreplyEntity "github.com/novriyantoAli/freeradius-service/internal/application/radreply/entity"
 	"github.com/novriyantoAli/freeradius-service/internal/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestAuthService_Authenticate_Success(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
-		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+		return []radcheckEntity.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
-		return []radreply.Radreply{*testutil.CreateRadreplyFixture()}, 1, nil
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error) {
+		return []radreplyEntity.Radreply{*testutil.CreateRadreplyFixture()}, 1, nil
 	}
 
-	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo)
+	mockTxManager := &testutil.MockTransactionManager{}
+
+	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo, mockTxManager)
 
 	req := &dto.AuthenticateRequest{
 		Username: "testuser",
@@ -43,16 +45,17 @@ func TestAuthService_Authenticate_Success(t *testing.T) {
 
 func TestAuthService_Authenticate_InvalidPassword(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
-		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+		return []radcheckEntity.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
-		return []radreply.Radreply{}, 0, nil
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error) {
+		return []radreplyEntity.Radreply{}, 0, nil
 	}
 
-	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo)
+	mockTxManager := &testutil.MockTransactionManager{}
+	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo, mockTxManager)
 
 	req := &dto.AuthenticateRequest{
 		Username: "testuser",
@@ -69,16 +72,17 @@ func TestAuthService_Authenticate_InvalidPassword(t *testing.T) {
 
 func TestAuthService_Authenticate_UserNotFound(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
-		return []radcheck.Radcheck{}, 0, nil
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+		return []radcheckEntity.Radcheck{}, 0, nil
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
-		return []radreply.Radreply{}, 0, nil
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error) {
+		return []radreplyEntity.Radreply{}, 0, nil
 	}
 
-	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo)
+	mockTxManager := &testutil.MockTransactionManager{}
+	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo, mockTxManager)
 
 	req := &dto.AuthenticateRequest{
 		Username: "nonexistent",
@@ -95,8 +99,8 @@ func TestAuthService_Authenticate_UserNotFound(t *testing.T) {
 
 func TestAuthService_Authenticate_MultipleAttributes(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
-		return []radcheck.Radcheck{
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+		return []radcheckEntity.Radcheck{
 			*testutil.CreateRadcheckFixture(),
 			{
 				ID:        2,
@@ -109,11 +113,12 @@ func TestAuthService_Authenticate_MultipleAttributes(t *testing.T) {
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
-		return []radreply.Radreply{}, 0, nil
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error) {
+		return []radreplyEntity.Radreply{}, 0, nil
 	}
 
-	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo)
+	mockTxManager := &testutil.MockTransactionManager{}
+	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo, mockTxManager)
 
 	req := &dto.AuthenticateRequest{
 		Username: "testuser",
@@ -130,13 +135,13 @@ func TestAuthService_Authenticate_MultipleAttributes(t *testing.T) {
 
 func TestAuthService_Authenticate_WithReplyAttributes(t *testing.T) {
 	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
-	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheck.Radcheck, int64, error) {
-		return []radcheck.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
+	mockRadcheckRepo.GetAllFn = func(ctx context.Context, filter *radcheckdto.RadcheckFilter) ([]radcheckEntity.Radcheck, int64, error) {
+		return []radcheckEntity.Radcheck{*testutil.CreateRadcheckFixture()}, 1, nil
 	}
 
 	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
-	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreply.Radreply, int64, error) {
-		return []radreply.Radreply{
+	mockRadreplyRepo.GetAllFn = func(ctx context.Context, filter *radrepldto.RadreplyFilter) ([]radreplyEntity.Radreply, int64, error) {
+		return []radreplyEntity.Radreply{
 			{
 				ID:        1,
 				Username:  "testuser",
@@ -147,7 +152,8 @@ func TestAuthService_Authenticate_WithReplyAttributes(t *testing.T) {
 		}, 1, nil
 	}
 
-	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo)
+	mockTxManager := &testutil.MockTransactionManager{}
+	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo, mockTxManager)
 
 	req := &dto.AuthenticateRequest{
 		Username: "testuser",
@@ -160,3 +166,77 @@ func TestAuthService_Authenticate_WithReplyAttributes(t *testing.T) {
 	require.NotNil(t, result)
 	require.True(t, result.Success)
 }
+
+func TestAuthService_CreateAuth_Success(t *testing.T) {
+	mockRadcheckRepo := testutil.NewMockRadcheckRepositoryWithFn()
+	mockRadcheckRepo.CreateFn = func(ctx context.Context, radcheck *radcheckEntity.Radcheck) error {
+		radcheck.ID = uint(len([]radcheckEntity.Radcheck{}) + 1)
+		return nil
+	}
+
+	mockRadreplyRepo := testutil.NewMockRadreplyRepository()
+	mockRadreplyRepo.CreateFn = func(ctx context.Context, radreply *radreplyEntity.Radreply) error {
+		radreply.ID = uint(len([]radreplyEntity.Radreply{}) + 1)
+		return nil
+	}
+
+	mockTxManager := &testutil.MockTransactionManager{}
+	mockTxManager.WithinTransactionFn = func(ctx context.Context, fn func(ctx context.Context) error) error {
+		return fn(ctx)
+	}
+
+	authService := service.NewAuthService(mockRadcheckRepo, mockRadreplyRepo, mockTxManager)
+
+	req := &dto.CreateAuthRequest{
+		Username: "newuser",
+		Password: "password123",
+		Attributes: []dto.CreateAuthAttribute{
+			{Attribute: "Framed-IP-Address", Value: "192.168.1.100", Op: "="},
+		},
+		ReplyAttrs: []dto.CreateAuthAttribute{
+			{Attribute: "Reply-Message", Value: "Welcome", Op: "="},
+		},
+	}
+
+	result, err := authService.CreateAuth(context.Background(), req)
+
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	require.Equal(t, "newuser", result.Username)
+	require.Equal(t, "password123", result.Password)
+	require.Greater(t, len(result.Attributes), 0)
+	require.Greater(t, len(result.ReplyAttrs), 0)
+}
+
+func TestAuthService_CreateAuth_MissingUsername(t *testing.T) {
+	mockTxManager := &testutil.MockTransactionManager{}
+	authService := service.NewAuthService(nil, nil, mockTxManager)
+
+	req := &dto.CreateAuthRequest{
+		Username: "",
+		Password: "password123",
+	}
+
+	result, err := authService.CreateAuth(context.Background(), req)
+
+	require.Error(t, err)
+	require.Nil(t, result)
+	require.Equal(t, "username is required", err.Error())
+}
+
+func TestAuthService_CreateAuth_MissingPassword(t *testing.T) {
+	mockTxManager := &testutil.MockTransactionManager{}
+	authService := service.NewAuthService(nil, nil, mockTxManager)
+
+	req := &dto.CreateAuthRequest{
+		Username: "newuser",
+		Password: "",
+	}
+
+	result, err := authService.CreateAuth(context.Background(), req)
+
+	require.Error(t, err)
+	require.Nil(t, result)
+	require.Equal(t, "password is required", err.Error())
+}
+

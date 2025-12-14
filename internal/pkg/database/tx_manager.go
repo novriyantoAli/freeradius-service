@@ -6,8 +6,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// TransactionManagerI is the interface for transaction management
+type TransactionManagerI interface {
+	WithinTransaction(ctx context.Context, fn func(ctx context.Context) error) error
+}
+
 type TransactionManager struct {
 	db *gorm.DB
+}
+
+func NewTransactionManager(db *gorm.DB) TransactionManagerI {
+	return &TransactionManager{db: db}
 }
 
 func (tm *TransactionManager) WithinTransaction(
